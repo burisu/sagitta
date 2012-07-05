@@ -1,0 +1,14 @@
+%h1=@user.full_name   
+
+-if @user == current_user or current_user.administrator
+  .toolbar
+    =link_to("Mettre à jour ses informations", edit_user_url(@user))
+
+
+.toolbar
+  =link_to("Nouveau e-mailing", new_communication_url(:client_id => @user.id))
+=list :communications
+
+.toolbar
+  =link_to("Nouvel intouchable", new_untouchable_url(:client_id => @user.id))
+=list :untouchables

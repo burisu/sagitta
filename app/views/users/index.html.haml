@@ -1,0 +1,7 @@
+%h1 Utilisateurs
+
+-if current_user.administrator?
+  .toolbar
+    =link_to("Nouvel utilisateur", new_user_url)
+
+=list

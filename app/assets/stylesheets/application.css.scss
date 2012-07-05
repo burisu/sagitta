@@ -1,0 +1,118 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+ *= require active-list
+ *= require_self
+ *= require_tree .
+ */
+
+@import "compass/reset";
+@import "compass";
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700,700italic,400italic);
+
+
+$base-color: #78D;
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { 
+  font-family: 'Open Sans', 'Helvetica', sans-serif;
+  font-size: 15px;
+}
+
+
+
+
+html { 
+  height: 100%; 
+/*  @include background(linear-gradient(top left, mix($base-color, #DDD, 50%), mix($base-color, yellow, 35%), mix($base-color, #CFC, 45%), mix($base-color, #FFF, 15%)));*/
+/*  @include background($base-color linear-gradient(left, transparentize(yellow, 0.2), transparentize(red, 0.2), transparentize(blue, 0.2), transparentize(green, 0.2), transparentize(yellow, 0.2)));*/
+  @include background($base-color radial-gradient(top, mix($base-color, #FFF, 53%), mix($base-color, #000, 13%)));
+}
+
+a { 
+  color: white;
+  .active-list & { 
+    color: $base-color;
+  }
+}
+
+#page { 
+/*  background: rgba(255,255,255,0.1);*/
+  background: rgba(0, 0, 0, 0.2);
+  @include border-bottom-radius(4px);
+  padding: 0.7em 1em 1em; 
+  max-width: 980px;
+  margin: 0 auto;
+  border-top: none;
+  h1 { 
+    font-size: 28px; 
+    margin: 0 0 0.5em 0; 
+    color: white;
+    font-weight: bold;
+  }
+  p.info { 
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+#home { 
+  text-align: center;
+  font-size: 200px;
+  letter-spacing: -0.1em;
+/*  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.2);*/
+  @include text-shadow(-1px -1px 1px #FFF);
+  margin: 0.2em auto 0.3em;
+  font-weight: bold;
+  color: transparentize($base-color, 0.2);
+ }
+
+.active-list { 
+  margin: 8px 0;
+  &:last-child { 
+    margin-bottom: 0;
+  }
+}
+
+
+.toolbar { 
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1px;
+  margin: 8px 0;
+  &:last-child { 
+    margin-bottom: 0;
+  }
+  a { 
+    padding: 4px 6px;
+    @include inline-block;
+    &:hover { 
+      background: rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+.input {
+  label { 
+    width: 160px; 
+    @include inline-block;
+    text-align: right;
+    padding: 2px 6px;
+  }
+}
+
+fieldset { 
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  margin: 8px 0 0;
+  legend { 
+    color: white;
+    @include text-shadow(0 0 2px rgba(0,0,0,0.5));
+    font-size: 17px;
+  }
+}

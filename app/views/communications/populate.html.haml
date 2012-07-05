@@ -1,0 +1,13 @@
+%h1 Importer des e-mails
+=form_tag({}, :multipart => true) do
+  %fieldset 
+    %legend Importer un fichier d'e-mails
+    =file_field_tag("touchables_file")
+    .actions=submit_tag("Importer")
+
+=form_tag do
+  %fieldset 
+    %legend Saisir une liste d'e-mails
+    =text_area_tag("touchables_list", params[:touchables_list], :rows => 10, :cols => 80)
+    .actions=submit_tag("Importer")
+

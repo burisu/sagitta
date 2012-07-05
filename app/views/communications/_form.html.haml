@@ -1,0 +1,10 @@
+=simple_fields_for @communication do |f|
+  =f.association :client
+  =f.input :name
+  =f.input :planned_on
+  =f.input :sender_email
+  =f.input :sender_label
+  =f.input :reply_to_email
+  =f.input :test_email
+  =f.input :message, :as => :text, :input_html => {:rows => 9, :cols => 80}
+  =f.input :flyer, :as => :file

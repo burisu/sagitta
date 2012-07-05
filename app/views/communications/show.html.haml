@@ -1,0 +1,20 @@
+%h1
+  =@communication.name
+  ="[Distribué]" if @communication.distributed?
+.toolbar
+  =link_to("Modifier", edit_communication_url(@communication))
+  -unless @communication.distributed?
+    =link_to("Importer les e-mails", populate_communication_url(@communication))    
+  -if @communication.distributable?
+    =link_to("Effectuer un test", test_communication_url(@communication), :method => :post)
+    =link_to("Effectuer l'envoi", distribute_communication_url(@communication), :method => :post, "data-confirm" => "Sûr(e) ?")
+%h2 Détails
+-for x in [:name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message]
+  .field.input
+    %label=Communication.human_attribute_name(x)
+    %span=@communication.send(x)
+%h2 Flyer
+=image_tag(@communication.flyer.url(:web))
+
+%h2 Cibles
+=list :touchables

@@ -1,0 +1,7 @@
+=simple_fields_for @user do |f|
+  =f.input :full_name
+  =f.input :email
+
+  -if current_user.administrator?
+    =f.input :password
+    =f.input :password_confirmation
