@@ -11,7 +11,7 @@
   -if @communication.distributable?
     =link_to("Effectuer l'envoi", distribute_communication_url(@communication), :method => :post, "data-confirm" => "Sûr(e) ?")
 %h2 Détails
--for x in [:name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message]
+-for x in [:name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url]
   .field.input
     %label=Communication.human_attribute_name(x)
     %span=@communication.send(x)

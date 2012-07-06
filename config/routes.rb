@@ -21,7 +21,10 @@ Sagitta::Application.routes.draw do
     end
     resources :touchables, :except => [:show, :index]
     resources :untouchables, :except => [:show, :index]
-    root :to => "admin#index"
+    root :to => "admin#index", :via => :get
   end
+
+  match 'desabonnement/:client_id/:email' => "home#unsubscribe", :as => :unsubscribe, :via => :get
+  match ':id' => "home#show",  :as => :message, :via => :get
   root :to => "home#index"
 end

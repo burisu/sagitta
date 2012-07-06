@@ -1,1 +1,8 @@
 <%=@communication.message-%>
+
+<% unless @communication.message_label.blank? >
+<%=@communication.message_label %> : <%=@message_url %>
+<% end %>
+<% unless @communication.unsubscribe_label.blank? >
+<%=@communication.unsubscribe_label %> : <%=@unsubscribe_url %>
+<% end %>

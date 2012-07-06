@@ -101,5 +101,6 @@ class CommunicationsController < AdminController
     redirect_to communication_url(@communication)
   end
 
-
+  protected
+  
 end

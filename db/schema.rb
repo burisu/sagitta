@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120705111755) do
+ActiveRecord::Schema.define(:version => 20120706122118) do
 
   create_table "communications", :force => true do |t|
     t.integer  "client_id",                             :null => false
@@ -32,6 +32,11 @@ ActiveRecord::Schema.define(:version => 20120705111755) do
     t.datetime "created_at",                            :null => false
     t.datetime "updated_at",                            :null => false
     t.integer  "lock_version",       :default => 0,     :null => false
+    t.string   "subject"
+    t.string   "unsubscribe_label"
+    t.string   "unreadable_label"
+    t.string   "message_label"
+    t.string   "target_url"
   end
 
   add_index "communications", ["client_id"], :name => "index_communications_on_client_id"

@@ -1,0 +1,4 @@
+%h1=@communication.subject
+
+=link_to(@communication.target_url) do
+  =image_tag(@communication.flyer.url(:web))
