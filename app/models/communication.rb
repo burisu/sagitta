@@ -23,10 +23,10 @@ class Communication < ActiveRecord::Base
   def distribute!
     self.touchables.find_each(:batch_size => 500) do |touchable|
       Distributor.news(touchable.email, self).deliver
-      touchable.update_attribute!(:sent_at, Time.now)
+ #     touchable.update_attribute!(:sent_at, Time.now)
     end
-    self.distributed_at = Time.now
-    self.distributed = true
+#    self.distributed_at = Time.now
+#    self.distributed = true
     self.save!
   end
 
