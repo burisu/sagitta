@@ -35,9 +35,9 @@ class Communication < ActiveRecord::Base
   end
 
   def from
-    text = @communication.sender_email
-    unless @communication.sender_label.blank?
-      text = @communication.sender_label.gsub(/\</, '(').gsub(/\>/, ')')+" <" + text + ">"
+    text = self.sender_email
+    unless self.sender_label.blank?
+      text = self.sender_label.gsub(/\</, '(').gsub(/\>/, ')')+" <" + text + ">"
     end
     return text
   end
