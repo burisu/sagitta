@@ -6,6 +6,8 @@ class CommunicationsController < AdminController
 
   list :touchables, :conditions => ["communication_id = ? ", ['session[:communication_id]']] do |t|
     t.column :email
+    t.action :edit
+    t.action :destroy
   end
 
   def show

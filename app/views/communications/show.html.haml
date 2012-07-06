@@ -2,6 +2,7 @@
   =@communication.name
   ="[Distribué]" if @communication.distributed?
 .toolbar
+  =link_to("Retour", user_url(@communication.client))
   =link_to("Modifier", edit_communication_url(@communication))
   -unless @communication.distributed?
     =link_to("Importer les e-mails", populate_communication_url(@communication))    

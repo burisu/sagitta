@@ -19,6 +19,7 @@ Sagitta::Application.routes.draw do
         get :list_touchables
       end
     end
+    resources :touchables, :except => [:show, :index]
     resources :untouchables, :except => [:show, :index]
     root :to => "admin#index"
   end
