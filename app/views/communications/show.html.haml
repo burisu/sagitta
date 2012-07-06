@@ -4,10 +4,11 @@
 .toolbar
   =link_to("Retour", user_url(@communication.client))
   =link_to("Modifier", edit_communication_url(@communication))
+  -if @communication.test_email?
+    =link_to("Effectuer un test", test_communication_url(@communication), :method => :post)
   -unless @communication.distributed?
     =link_to("Importer les e-mails", populate_communication_url(@communication))    
   -if @communication.distributable?
-    =link_to("Effectuer un test", test_communication_url(@communication), :method => :post)
     =link_to("Effectuer l'envoi", distribute_communication_url(@communication), :method => :post, "data-confirm" => "Sûr(e) ?")
 %h2 Détails
 -for x in [:name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message]

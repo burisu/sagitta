@@ -26,5 +26,5 @@ class Communication < ActiveRecord::Base
   def distributable?
     !self.distributed and self.touchables.count > 0
   end
-  
+
 end
