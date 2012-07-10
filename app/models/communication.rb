@@ -8,7 +8,7 @@ class Communication < ActiveRecord::Base
     :url => "/system/:class/:attachment/:id_partition/:style/:filename"
   }
   has_many :effects, :dependent => :delete_all
-  has_many :touchables, :dependent => :delete_all
+  has_many :touchables, :dependent => :delete_all, :order => :email
   
   after_initialize do
     self.unreadable_label = "Cliquez-ici si le message est illisible"
@@ -16,18 +16,31 @@ class Communication < ActiveRecord::Base
     self.message_label = "Consulter le message en ligne"
   end
 
-  def test!
-    Distributor.news(self.test_email, self).deliver
+  def distribute_to!(email)
+    Distributor.news(email, self).deliver
   end
 
-  def distribute!
-    self.touchables.find_each(:batch_size => 500) do |touchable|
-      Distributor.news(touchable.email, self).deliver
- #     touchable.update_attribute!(:sent_at, Time.now)
+  def distribute_to(email = nil)
+    email ||= self.test_email
+    exception = []
+    begin
+      self.distribute_to!(email)
+    rescue Exception => e
+      exception << e
     end
-#    self.distributed_at = Time.now
-#    self.distributed = true
-    self.save!
+    return exception
+  end
+
+  def distribute(options = {})
+    errors = []
+    self.touchables.where(options[:where]).where("email NOT IN (SELECT email FROM untouchables WHERE client_id=?)", self.client_id).find_each(:batch_size => 500) do |touchable|
+      errors += self.distribute_to(touchable.email)
+      touchable.update_attribute(:sent_at, Time.now)
+    end
+    # self.distributed_at = Time.now
+    # self.distributed = true
+    self.save
+    return errors
   end
 
   def distributable?

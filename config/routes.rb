@@ -12,7 +12,6 @@ Sagitta::Application.routes.draw do
       member do
         get :populate
         post :populate
-        post :test
         post :distribute
       end
       collection do

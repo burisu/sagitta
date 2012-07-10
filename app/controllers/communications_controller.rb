@@ -89,18 +89,15 @@ class CommunicationsController < AdminController
     end
   end
 
-  def test
-    @communication = Communication.find(params[:id])
-    @communication.test!
-    redirect_to communication_url(@communication)
-  end
-
   def distribute
     @communication = Communication.find(params[:id])
-    @communication.distribute!
-    redirect_to communication_url(@communication)
+    @errors = if params[:mode] == "real"
+                @communication.distribute
+              elsif params[:mode] == "unsent"
+                @communication.distribute(:where => "sent_at IS NULL")
+              else
+                @communication.distribute_to
+              end
   end
 
-  protected
-  
 end

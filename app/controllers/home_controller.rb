@@ -6,7 +6,8 @@ class HomeController < ApplicationController
   def unsubscribe
     client = User.find(params[:client_id])
     if client and params[:email]
-      client.untouchables.create!(:email => params[:email])
+      email = Base64.urlsafe_decode64(params[:email])
+      client.untouchables.create!(:email => email)
     end
   end
 

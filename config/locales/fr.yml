@@ -6,4 +6,7 @@ fr:
     edit: Éditer
     new: Ajouter
     update: Modifier
+    x_errors:
+      one: "%{count} erreur"
+      other: "%{count} erreurs"
     
