@@ -1,4 +1,13 @@
-%h1=@communication.subject
-
-=link_to(@communication.target_url) do
-  =image_tag(@communication.flyer.url(:web))
+!!!
+%html.prospectus
+  %head
+    -unless @communication.subject.blank?
+      %title=@communication.subject
+    =stylesheet_link_tag    "application", :media => "all"
+    =javascript_include_tag "application"
+    =csrf_meta_tags
+  %body
+    #page
+      -# %h1=@communication.subject
+      =link_to((@communication.target_url.blank? ? nil : @communication.target_url), :class => :main) do
+        =image_tag(@communication.flyer.url(:web), :title => @communication.message)

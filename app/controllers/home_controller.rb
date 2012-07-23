@@ -13,6 +13,7 @@ class HomeController < ApplicationController
 
   def show
     @communication = Communication.find(params[:id])    
+    render :action => :show, :layout => false
   end
 
 end

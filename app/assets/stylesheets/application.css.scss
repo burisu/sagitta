@@ -33,6 +33,9 @@ html {
 /*  @include background(linear-gradient(top left, mix($base-color, #DDD, 50%), mix($base-color, yellow, 35%), mix($base-color, #CFC, 45%), mix($base-color, #FFF, 15%)));*/
 /*  @include background($base-color linear-gradient(left, transparentize(yellow, 0.2), transparentize(red, 0.2), transparentize(blue, 0.2), transparentize(green, 0.2), transparentize(yellow, 0.2)));*/
   @include background($base-color radial-gradient(top, mix($base-color, #FFF, 53%), mix($base-color, #000, 13%)) fixed);
+  &.prospectus { 
+    @include background(white);
+  }
 }
 
 a { 
@@ -55,6 +58,9 @@ a {
     margin: 0 0 0.5em 0; 
     color: white;
     font-weight: bold;
+    html.prospectus & { 
+      color: #555;
+    }
   }
   h2 { 
     font-size: 20px; 
@@ -66,6 +72,19 @@ a {
   p.info { 
     font-style: italic;
     color: rgba(255, 255, 255, 0.7);
+  }
+  html.prospectus & { 
+    background: none;
+    text-align: center;
+    padding: 1em;
+    a.main { 
+      display: block;
+      width: 640px;
+      margin: 0 auto;
+      padding: 1em;
+      @include box-shadow(0 0 128px rgba(0,0,0,0.08));
+      @include border-radius(3px);
+    }
   }
 }
 

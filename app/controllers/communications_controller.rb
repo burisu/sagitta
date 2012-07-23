@@ -16,7 +16,7 @@ class CommunicationsController < AdminController
   end
   
   def new
-    @communication = Communication.new()
+    @communication = Communication.new(:client_id => params[:client_id])
     respond_to do |format|
       format.html { render_restfully_form(:multipart => true) }
       format.json { render :json => @communication }

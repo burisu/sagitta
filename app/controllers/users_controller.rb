@@ -11,18 +11,19 @@ class UsersController < AdminController
   def index
   end
 
-  list :communications do |t|
+  list(:communications, :conditions => {:client_id => ['session[:current_user_id]']}) do |t|
     t.column :name, :url => true
     t.column :planned_on
   end
 
-  list :untouchables do |t|
+  list(:untouchables, :conditions => {:client_id => ['session[:current_user_id]']}) do |t|
     t.column :email
   end
 
 
   def show
     @user = User.find(params[:id])
+    session[:current_user_id] = @user.id
   end
   
   def new
