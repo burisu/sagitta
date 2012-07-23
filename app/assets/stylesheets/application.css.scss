@@ -79,11 +79,12 @@ a {
     padding: 1em;
     a.main { 
       display: block;
-      width: 640px;
-      margin: 0 auto;
+      text-align: center;
       padding: 1em;
+      /*
       @include box-shadow(0 0 128px rgba(0,0,0,0.08));
       @include border-radius(3px);
+     */
     }
   }
 }
