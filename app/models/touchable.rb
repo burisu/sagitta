@@ -12,7 +12,7 @@ class Touchable < ActiveRecord::Base
   end
 
   def stroke!
-    self.communication.client.untouchable.create!(:email => self.email)
+    self.communication.client.untouchables.create!(:email => self.email)
   end
 
 end

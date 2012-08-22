@@ -9,7 +9,10 @@ class HomeController < ApplicationController
   end
 
   def show
-    @communication = Communication.find_by_key(params[:key])
+    unless @communication = Communication.find_by_key(params[:key])
+      head :not_found
+      return
+    end
     render :action => :show, :layout => false
   end
 
