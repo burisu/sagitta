@@ -22,7 +22,7 @@ $base-color: #348;
 
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { 
   font-family: 'Open Sans', 'Helvetica', sans-serif;
-  font-size: 15px;
+  font-size: 13px;
 }
 
 
@@ -30,8 +30,6 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 
 html { 
   height: 100%; 
-/*  @include background(linear-gradient(top left, mix($base-color, #DDD, 50%), mix($base-color, yellow, 35%), mix($base-color, #CFC, 45%), mix($base-color, #FFF, 15%)));*/
-/*  @include background($base-color linear-gradient(left, transparentize(yellow, 0.2), transparentize(red, 0.2), transparentize(blue, 0.2), transparentize(green, 0.2), transparentize(yellow, 0.2)));*/
   @include background($base-color radial-gradient(top, mix($base-color, #FFF, 53%), mix($base-color, #000, 13%)) fixed);
   &.prospectus { 
     @include background(white);
@@ -46,7 +44,6 @@ a {
 }
 
 #page { 
-/*  background: rgba(255,255,255,0.1);*/
   background: rgba(0, 0, 0, 0.2);
   @include border-bottom-radius(4px);
   padding: 0.7em 1em 1em; 
@@ -81,10 +78,6 @@ a {
       display: block;
       text-align: center;
       padding: 1em;
-      /*
-      @include box-shadow(0 0 128px rgba(0,0,0,0.08));
-      @include border-radius(3px);
-     */
     }
   }
 }
@@ -93,7 +86,6 @@ a {
   text-align: center;
   font-size: 200px;
   letter-spacing: -0.1em;
-/*  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.2);*/
   @include text-shadow(-1px -1px 1px #FFF);
   margin: 0.2em auto 0.3em;
   font-weight: bold;
@@ -149,4 +141,22 @@ pre {
   font-size: 11px;
   font-family: monospace;
   overflow: auto;
+}
+
+.checkbox-false, .checkbox-true { 
+  @include inline-block;
+  width: 12px;
+  height: 12px;
+  @include background(linear-gradient(top, rgba(#FFF,0.8), rgba(#FFF,0.05)));
+  @include box-shadow(0 0 5px rgba(#000, 0.3));
+  @include border-radius(6px);
+  opacity: 0.8;
+}
+
+.checkbox-false { 
+  background-color: red;
+}
+
+.checkbox-true { 
+  background-color: green;
 }

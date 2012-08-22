@@ -1,3 +1,4 @@
+# People who don't receive e-mails
 class Untouchable < ActiveRecord::Base
   attr_accessible :email
   belongs_to :client, :class_name => "User"

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120706122118) do
+ActiveRecord::Schema.define(:version => 20120822124211) do
 
   create_table "communications", :force => true do |t|
     t.integer  "client_id",                             :null => false
@@ -37,9 +37,11 @@ ActiveRecord::Schema.define(:version => 20120706122118) do
     t.string   "unreadable_label"
     t.string   "message_label"
     t.string   "target_url"
+    t.string   "key"
   end
 
   add_index "communications", ["client_id"], :name => "index_communications_on_client_id"
+  add_index "communications", ["key"], :name => "index_communications_on_key"
 
   create_table "effects", :force => true do |t|
     t.integer  "communication_id", :null => false
@@ -54,15 +56,18 @@ ActiveRecord::Schema.define(:version => 20120706122118) do
   add_index "effects", ["touchable_id"], :name => "index_effects_on_touchable_id"
 
   create_table "touchables", :force => true do |t|
-    t.integer  "communication_id", :null => false
-    t.string   "email",            :null => false
+    t.integer  "communication_id",                    :null => false
+    t.string   "email",                               :null => false
     t.datetime "sent_at"
-    t.datetime "created_at",       :null => false
-    t.datetime "updated_at",       :null => false
+    t.datetime "created_at",                          :null => false
+    t.datetime "updated_at",                          :null => false
+    t.string   "key"
+    t.boolean  "test",             :default => false, :null => false
   end
 
   add_index "touchables", ["communication_id"], :name => "index_touchables_on_communication_id"
   add_index "touchables", ["email"], :name => "index_touchables_on_email"
+  add_index "touchables", ["key"], :name => "index_touchables_on_key"
 
   create_table "untouchables", :force => true do |t|
     t.integer  "client_id",                          :null => false

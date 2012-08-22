@@ -4,15 +4,12 @@ class HomeController < ApplicationController
   end
 
   def unsubscribe
-    client = User.find(params[:client_id])
-    if client and params[:email]
-      email = Base64.urlsafe_decode64(params[:email])
-      client.untouchables.create!(:email => email)
-    end
+    @touchable = Touchable.find_by_key(params[:key])
+    @touchable.stroke!
   end
 
   def show
-    @communication = Communication.find(params[:id])    
+    @communication = Communication.find_by_key(params[:key])
     render :action => :show, :layout => false
   end
 

@@ -1,12 +1,14 @@
 class Distributor < ActionMailer::Base
 
-  def news(recipient, communication)
-    @communication = communication
-    @recipient = recipient
-    @message_url = message_url(@communication.to_param, :host => "agrimail.fr")
-    @unsubscribe_url = unsubscribe_url(@communication.client_id, Base64.urlsafe_encode64(@recipient), :host => "agrimail.fr")
+  def news(touchable, options = {})
+    @touchable = touchable
+    @communication = @touchable.communication
+    @message_url = message_url(@communication.key, :host => "agrimail.fr")
+    @unsubscribe_url = unsubscribe_url(@touchable.key, :host => "agrimail.fr")
     attachments.inline[@communication.flyer.original_filename] = File.read(@communication.flyer.path(:web))
-    mail(:to => recipient, :from => @communication.from, :subject => @communication.subject)
+    settings = {:to => @touchable.email, :from => @communication.from, :subject => @communication.subject}
+    settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
+    mail(settings)
   end
 
 end

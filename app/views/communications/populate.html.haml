@@ -1,13 +1,20 @@
+-test_text = "Pour les tests avant tout"
 %h1 Importer des e-mails
 =form_tag({}, :multipart => true) do
   %fieldset 
     %legend Importer un fichier d'e-mails
     =file_field_tag("touchables_file")
+    .input
+      %label{:for => "test-file"}=test_text
+      =check_box_tag("test", "1", params[:test], :id => "test-file")
     .actions=submit_tag("Importer")
 
 =form_tag do
   %fieldset 
     %legend Saisir une liste d'e-mails
     =text_area_tag("touchables_list", params[:touchables_list], :rows => 10, :cols => 80)
+    .input
+      %label{:for => "test-list"}=test_text
+      =check_box_tag("test", "1", params[:test], :id => "test-list")
     .actions=submit_tag("Importer")
 

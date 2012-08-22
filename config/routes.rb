@@ -13,6 +13,7 @@ Sagitta::Application.routes.draw do
         get :populate
         post :populate
         post :distribute
+        delete :clear
       end
       collection do
         get :list_touchables
@@ -23,7 +24,7 @@ Sagitta::Application.routes.draw do
     root :to => "admin#index", :via => :get
   end
 
-  match 'desabonnement/:client_id/:email' => "home#unsubscribe", :as => :unsubscribe, :via => :get
-  match ':id' => "home#show",  :as => :message, :via => :get
+  match 'desabonnement/:key' => "home#unsubscribe", :as => :unsubscribe, :via => :get
+  match ':key' => "home#show",  :as => :message
   root :to => "home#index"
 end

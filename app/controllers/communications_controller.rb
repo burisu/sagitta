@@ -6,12 +6,15 @@ class CommunicationsController < AdminController
 
   list :touchables, :conditions => ["communication_id = ? ", ['session[:communication_id]']] do |t|
     t.column :email
+    t.column :test
+    t.column :key
     t.action :edit
     t.action :destroy
   end
 
   def show
     @communication = Communication.find(params[:id])
+    @communication.save if @communication.key.blank?
     session[:communication_id] = @communication.id
   end
   
@@ -73,7 +76,7 @@ class CommunicationsController < AdminController
       if params[:touchables_file]
         name = params[:touchables_file].original_filename
         path = Rails.root.join("tmp", "codes-import.#{name}.#{rand.to_s[2..16].to_i.to_s(36)}.csv")
-        File.open(path, "wb") { |f| f.write(params[:file].read) }
+        File.open(path, "wb") { |f| f.write(params[:touchables_file].read) }
         File.open(path, "rb") { |f| source = f.read }
         File.delete(path)
       elsif params[:touchables_list]
@@ -83,10 +86,16 @@ class CommunicationsController < AdminController
       end
       clist = source.to_s.split(/\s+/).compact.collect{|x| x.to_s.mb_chars.downcase}.uniq
       for email in clist
-        @communication.touchables.create(:email => email)
+        @communication.touchables.create(:email => email, :test => (params[:test].to_i == 1))
       end
       redirect_to communication_url(@communication)
     end
+  end
+
+  def clear
+    @communication = Communication.find(params[:id])
+    @communication.touchables.clear
+    redirect_to communication_url(@communication)
   end
 
   def distribute
@@ -96,7 +105,7 @@ class CommunicationsController < AdminController
               elsif params[:mode] == "unsent"
                 @communication.distribute(:where => "sent_at IS NULL")
               else
-                @communication.distribute_to
+                @communication.distribute(:where => "test")
               end
   end
 
