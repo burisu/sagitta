@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
   attr_accessible :email, :password, :password_confirmation, :remember_me, :full_name, :administrator
   
   has_many :communications
-  has_many :untouchables, :dependent => :delete_all
+  has_many :untouchables, :foreign_key => :client_id, :dependent => :delete_all
 
   def name
     self.full_name
