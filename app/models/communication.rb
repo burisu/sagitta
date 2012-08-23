@@ -9,6 +9,7 @@ class Communication < ActiveRecord::Base
   }
   has_many :effects, :dependent => :delete_all
   has_many :touchables, :dependent => :delete_all, :order => :email
+  has_many :testables, :class_name => "Touchable", :dependent => :delete_all, :order => :email, :conditions => {:test => true}
   
   after_initialize do
     self.unreadable_label ||= "Cliquez-ici si le message est illisible"
