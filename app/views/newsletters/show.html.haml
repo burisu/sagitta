@@ -1,0 +1,13 @@
+%h1=@newsletter.name
+.toolbar
+  =link_to "Modifier", edit_newsletter_url
+
+%h2 Rubriques
+.toolbar
+  =link_to "Ajouter une rubrique", new_newsletter_rubric_url(:newsletter_id => @newsletter.id)
+=list :rubrics
+
+%h2 Lettres
+.toolbar
+  =link_to "Nouvelle lettre", new_communication_url(:newsletter_id => @newsletter.id)
+=list :communications

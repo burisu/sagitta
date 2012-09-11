@@ -20,6 +20,7 @@ class CommunicationsController < AdminController
   
   def new
     @communication = Communication.new(:client_id => params[:client_id])
+    @communication.newsletter = current_user.newsletters.find_by_id(params[:newsletter_id])
     respond_to do |format|
       format.html { render_restfully_form(:multipart => true) }
       format.json { render :json => @communication }
@@ -29,6 +30,8 @@ class CommunicationsController < AdminController
   
   def create
     @communication = Communication.new(params[:communication])
+    @communication.client = current_user unless current_user.administrator?
+    @communication.newsletter = current_user.newsletters.find_by_id(@communication.newsletter_id)
     respond_to do |format|
       if @communication.save
         format.html { redirect_to (params[:redirect] || communication_url(@communication)) }
@@ -49,6 +52,8 @@ class CommunicationsController < AdminController
   
   def update
     @communication = Communication.find(params[:id])
+    @communication.client = current_user unless current_user.administrator?
+    @communication.newsletter = current_user.newsletters.find_by_id(@communication.newsletter_id)
     respond_to do |format|
       if @communication.update_attributes(params[:communication])
         format.html { redirect_to (params[:redirect] || communication_url(@communication)) }

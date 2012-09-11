@@ -1,14 +1,22 @@
 %h1=@user.full_name   
 
 .toolbar
-  =link_to("Retour", users_url)
+  -if current_user.administrator
+    =link_to("Utilisateurs", users_url)
   -if @user == current_user or current_user.administrator
     =link_to("Mettre à jour ses informations", edit_user_url(@user))
 
 %h2 E-mailings
 .toolbar
-  =link_to("Nouveau e-mailing", new_communication_url(:client_id => @user.id))
+  =link_to("Nouveau flyer", new_communication_url(:client_id => @user.id))
+  -for newsletter in current_user.newsletters
+    =link_to("Nouveau &laquo;&nbsp;#{newsletter.name}&nbsp;&raquo;".html_safe, new_communication_url(:client_id => @user.id, :newsletter_id => newsletter.id))
 =list :communications
+
+%h2 Newsletters
+.toolbar
+  =link_to("Nouvelle newsletter", new_newsletter_url(:client_id => @user.id))
+=list :newsletters
 
 %h2 Intouchables
 -#.toolbar

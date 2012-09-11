@@ -14,6 +14,7 @@ gem 'formize'
 gem 'simple_form'
 gem 'i18n-complements'
 gem 'rails-i18n'
+gem 'acts_as_list'
 
 # Gems used only for assets and not required
 # in production environments by default.

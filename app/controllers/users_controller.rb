@@ -11,19 +11,36 @@ class UsersController < AdminController
   def index
   end
 
-  list(:communications, :conditions => {:client_id => ['session[:current_user_id]']}) do |t|
+
+  list :newsletters, :conditions => {:client_id => ["current_user.id"]} do |t|
     t.column :name, :url => true
-    t.column :planned_on
+    t.column :introduction
+    t.column :conclusion
+    t.action :edit
+    t.action :destroy
   end
 
-  list(:untouchables, :conditions => {:client_id => ['session[:current_user_id]']}) do |t|
+  list :communications, :conditions => {:client_id => ["current_user.id"]} do |t|
+    t.column :name, :url => true
+    t.column :planned_on
+    t.column :name, :through => :newsletter, :url => true
+    t.action :edit
+    t.action :destroy
+  end
+
+  list(:untouchables, :conditions => {:client_id => ['current_user.id']}) do |t|
     t.column :email
+    t.action :edit
+    t.action :destroy
   end
 
 
   def show
     @user = User.find(params[:id])
-    session[:current_user_id] = @user.id
+    if @user != current_user and !current_user.administrator?
+      redirect_to user_url(current_user)
+      return
+    end
   end
   
   def new

@@ -1,0 +1,7 @@
+%h2{:name => article.title.parameterize}=link_to(article.title, (article.link_url.blank? ? "#"+article.title.parameterize : article.link_url))
+.content=article.content
+.toolbar
+  =link_to("Éditer", edit_article_url(article))
+  =link_to("Supprimer", article_url(article), :method => "delete", :confirm => "Sure ?")
+  =link_to("Monter", up_article_url(article), :method => :post)
+  =link_to("Descendre", down_article_url(article), :method => :post)

@@ -1,14 +1,25 @@
+-title=(@communication.newsletter ? "Nouveau &laquo;&nbsp;#{@communication.newsletter.name}&nbsp;&raquo;".html_safe : "Nouveau flyer")
+-content_for :title do
+  =title
+%h1=title
 =simple_fields_for @communication do |f|
-  =f.association :client
+  -if current_user.administrator?
+    =f.association :client
   =f.input :name
   =f.input :planned_on
   =f.input :sender_email
   =f.input :sender_label
   =f.input :reply_to_email
-  =f.input :subject
-  =f.input :message, :as => :text, :input_html => {:rows => 9, :cols => 80}
-  =f.input :flyer, :as => :file
-  =f.input :unsubscribe_label
-  =f.input :unreadable_label
-  =f.input :message_label
-  =f.input :target_url
+  -if @communication.newsletter
+    =f.association :newsletter, :as => :hidden
+    =f.input :introduction, :input_html => {:rows => 3, :cols => 80}
+    =f.input :conclusion, :input_html => {:rows => 3, :cols => 80}
+  -else
+    =f.input :subject
+    =f.input :message, :as => :text, :input_html => {:rows => 9, :cols => 80}
+    =f.input :flyer, :as => :file
+    =f.input :unsubscribe_label
+    =f.input :unreadable_label
+    =f.input :message_label
+    =f.input :target_url
+

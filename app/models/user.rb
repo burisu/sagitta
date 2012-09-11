@@ -8,7 +8,8 @@ class User < ActiveRecord::Base
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me, :full_name, :administrator
   
-  has_many :communications
+  has_many :communications, :foreign_key => :client_id, :dependent => :delete_all
+  has_many :newsletters, :foreign_key => :client_id, :dependent => :delete_all
   has_many :untouchables, :foreign_key => :client_id, :dependent => :delete_all
 
   def name

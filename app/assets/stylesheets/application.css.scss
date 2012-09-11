@@ -18,11 +18,17 @@
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700,700italic,400italic);
 
 
-$base-color: #348;
+$base-color: #384;
+
+$fs-normal: 14px;
+$font-size-coeff: 1.4;
+$fs-small: round($fs-normal / $font-size-coeff);
+$fs-large: round($fs-normal * $font-size-coeff);
+$fs-huge:  round($fs-large  * $font-size-coeff);
 
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { 
   font-family: 'Open Sans', 'Helvetica', sans-serif;
-  font-size: 13px;
+  font-size: $fs-normal;
 }
 
 
@@ -30,45 +36,44 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 
 html { 
   height: 100%; 
-  @include background($base-color radial-gradient(top, mix($base-color, #FFF, 53%), mix($base-color, #000, 13%)) fixed);
+  @include background(#DDD);
   &.prospectus { 
     @include background(white);
   }
 }
 
 a { 
-  color: white;
+  color: $base-color;
   .active-list & { 
     color: $base-color;
   }
 }
 
 #page { 
-  background: rgba(0, 0, 0, 0.2);
-  @include border-bottom-radius(4px);
+  background: #EEE;
+  @include border-radius(3px);
   padding: 0.7em 1em 1em; 
   max-width: 980px;
-  margin: 0 auto;
+  margin: $fs-normal auto;
   border-top: none;
   h1 { 
-    font-size: 28px; 
+    font-size: $fs-huge; 
     margin: 0 0 0.5em 0; 
-    color: white;
     font-weight: bold;
     html.prospectus & { 
       color: #555;
     }
   }
   h2 { 
-    font-size: 20px; 
+    &, & * { 
+      font-size: $fs-large; 
+      font-weight: bold;
+    }
     margin: 0.2em 0 0.4em 0; 
-    color: rgba(255, 255, 255, 0.6);
-    font-weight: bold;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+    border-bottom: 1px solid #DDD;
   }
   p.info { 
     font-style: italic;
-    color: rgba(255, 255, 255, 0.7);
   }
   html.prospectus & { 
     background: none;
@@ -101,7 +106,7 @@ a {
 
 
 .toolbar { 
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(#FFF, 0.2);
   padding: 1px;
   margin: 8px 0;
   &:last-child { 
@@ -111,13 +116,13 @@ a {
     padding: 4px 6px;
     @include inline-block;
     &:hover { 
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(#FFF, 0.2);
     }
   }
 }
 
 .input {
-  label { 
+  & > label { 
     width: 160px; 
     @include inline-block;
     text-align: right;
@@ -130,15 +135,14 @@ fieldset {
   padding: 8px;
   margin: 8px 0 0;
   legend { 
-    color: white;
-    @include text-shadow(0 0 2px rgba(0,0,0,0.5));
-    font-size: 17px;
+    @include text-shadow(0 0 2px rgba(#FFF,0.5));
+    font-size: $fs-large;
   }
 }
 
 pre { 
   padding: 1ex 0;
-  font-size: 11px;
+  font-size: $fs-small;
   font-family: monospace;
   overflow: auto;
 }

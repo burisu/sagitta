@@ -1,6 +1,10 @@
-%h1
-  =@communication.name
-  ="[Distribué]" if @communication.distributed?
+-title = ""
+-title << @communication.newsletter.name+"&nbsp;: ".html_safe if @communication.newsletter
+-title << @communication.name
+-title <<" [Distribué]" if @communication.distributed?
+-title = title.html_safe
+-content_for(:title, title)
+%h1=title
 .toolbar
   =link_to("Retour", user_url(@communication.client))
   =link_to("Modifier", edit_communication_url(@communication))
@@ -14,12 +18,24 @@
     =link_to("Effectuer l'envoi", distribute_communication_url(@communication, :mode => "real"), :method => :post, "data-confirm" => "Sûr(e) ?")
   =link_to("Voir la page", message_url(@communication.key), :target => "_blank")
 %h2 Détails
--for x in [:name, :planned_on, :sender_email, :sender_label, :reply_to_email, :message, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :key]
+
+-fields = [:name, :planned_on, :sender_email, :sender_label, :reply_to_email]
+-if @communication.newsletter
+  -fields += [:introduction, :conclusion]
+-else
+  -fields += [:message, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :key]
+-for x in fields
   .field.input
     %label=Communication.human_attribute_name(x)
     %span=@communication.send(x)
-%h2 Flyer
-=image_tag(@communication.flyer.url(:web))
+-if @communication.newsletter
+  %h2 Newsletter
+  .toolbar
+    =link_to("Ajouter un article", new_article_url(:communication_id => @communication.id))
+  =render :partial => "articles/article", :collection => @communication.articles
+-else
+  %h2 Flyer
+  =image_tag(@communication.flyer.url(:web))
 
 %h2 Cibles
 =list :touchables
