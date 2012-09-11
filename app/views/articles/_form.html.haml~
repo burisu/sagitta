@@ -1,7 +1,0 @@
-%h1="Nouvel article pour #{@article.newsletter.name}"
-=simple_fields_for @newsletter_rubric do |f|
-  =f.association :newsletter, :as => :hidden
-  =f.association :rubric, :collection => @article.newsletter.rubrics
-  =f.input :name
-  =f.input :color, :input_html => {:rows => 2, :cols => 80}
-  =f.input :border, :input_html => {:rows => 2, :cols => 80}
