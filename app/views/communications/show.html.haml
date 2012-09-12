@@ -17,6 +17,7 @@
     =link_to("Effectuer l'envoi pour les non-envoyés", distribute_communication_url(@communication, :mode => "unsent"), :method => :post, "data-confirm" => "Sûr(e) ?")
     =link_to("Effectuer l'envoi", distribute_communication_url(@communication, :mode => "real"), :method => :post, "data-confirm" => "Sûr(e) ?")
   =link_to("Voir la page", message_url(@communication.key), :target => "_blank")
+  =link_to("Voir le PDF", communication_url(@communication, :format => :pdf), :target => "_blank")
 %h2 Détails
 
 -fields = [:name, :planned_on, :sender_email, :sender_label, :reply_to_email]

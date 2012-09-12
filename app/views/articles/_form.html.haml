@@ -3,5 +3,5 @@
   =f.association :communication, :as => :hidden
   =f.association :rubric, :collection => @article.newsletter.rubrics
   =f.input :title
-  =f.input :content, :input_html => {:rows => @article.content.split(/\n/).inject(0){|sum, line| sum + (line.size/80) + 1 } + 1, :cols => 80}
+  =f.input :content, :input_html => {:rows => @article.content.to_s.split(/\n/).inject(0){|sum, line| sum + (line.size/80) + 1 } + 1, :cols => 80}
   =f.input :readmore_url, :input_html => {:rows => 2, :cols => 80}

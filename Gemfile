@@ -18,6 +18,7 @@ gem 'acts_as_list'
 gem 'prawn'
 gem 'nokogiri'
 gem 'css_parser'
+gem 'actionmailer_inline_css' #
 
 # Gems used only for assets and not required
 # in production environments by default.

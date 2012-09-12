@@ -15,7 +15,13 @@ class CommunicationsController < AdminController
   def show
     @communication = Communication.find(params[:id])
     @communication.save if @communication.key.blank?
-    session[:communication_id] = @communication.id
+    respond_to do |format|
+      format.html { session[:communication_id] = @communication.id}
+      format.pdf { send_file @communication.to_pdf }
+      format.json { render :json => @communication }
+      format.xml  { render :xml => @communication }
+    end
+    
   end
   
   def new

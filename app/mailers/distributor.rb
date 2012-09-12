@@ -1,4 +1,5 @@
 class Distributor < ActionMailer::Base
+  add_template_helper(ApplicationHelper)
 
   def news(touchable, options = {})
     @touchable = touchable

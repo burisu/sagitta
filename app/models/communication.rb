@@ -47,7 +47,9 @@ class Communication < ActiveRecord::Base
   has_many :touchables, :dependent => :delete_all, :order => :email
   has_many :testables, :class_name => "Touchable", :dependent => :delete_all, :order => :email, :conditions => {:test => true}
 
-  delegate :global_style, :footer, :to => :newsletter
+  delegate :global_style, :header, :footer, :to => :newsletter
+
+  include Prawn::Measurements
   
   after_initialize do
     self.unreadable_label ||= "Cliquez-ici si le message est illisible"
@@ -113,7 +115,7 @@ class Communication < ActiveRecord::Base
   end
 
   def title
-    self.name
+    self.subject
   end
 
   # Generate styles in CSS format
@@ -185,6 +187,55 @@ class Communication < ActiveRecord::Base
 
     return html
   end
+
+  def self.beautify_for_pdf(text, options = {})
+    html = text.dup
+    for character, escape in {"&" => "&amp;", "<" => "&lt;", ">" => "&gt;", "'" => "’"}
+      html.gsub!(character, escape)
+    end
+    html.gsub!(/^\ \ [\*\-]\ +(.*)\ *$/, '<ul><li>\1</li></ul>')
+    html.gsub!(/\<\/ul\>\ *\n?\ *\<ul\>/, '')
+    # Stars
+    html.gsub!(/(^|[^\*])\*([^\*]|$)/, '\1∗\2')
+    # Emphase
+    html.gsub!(/([^\:])\/\/([^\s][^\/]+)\/\//, '\1<i>\2</i>')
+    # Strong
+    html.gsub!(/\*\*([^\s\*][^\*]*[^\s\*])\*\*/, '<b>\1</b>')
+    # URL
+    html.gsub!(/\[\[[^\|\]]+(\|[^\]]+)?\]\]/) do |link|
+      link = link[2..-3].strip.split("|")
+      url = link[0].strip
+      url = "http://"+url unless url.match(/^\w+\:\/\//)
+      title = link[1] || url
+      "<link href=\"#{url}\">#{title}</link>"
+    end
+    # Tables
+    classes = [:odd, :even]
+    c = nil
+    html.gsub!(/^\ *\|(.*)\|\ *\r?\n/) do |line|
+      cells = line.strip[1..-1].split(/\|/).collect do |data|
+        t, align = "td", "left"
+        if data[0..0] == "#"
+          t = "th" 
+          data = data[1..-1]
+        end
+        if data[0..1] == "  "
+          if data.size > 4 and data[-2..-1] == "  "
+            align = "center"
+          else
+            align = "right"
+          end
+        end
+        "<#{t} class=\"a-#{align}\">#{data.strip}</#{t}>"
+      end
+      c = classes[classes.index(c) ? (classes.index(c) + 1)  : 0] || classes[0]
+      "<table><tbody><tr class=\"#{c}\">" + cells.join + "</tr></tbody></table>"
+    end
+    html.gsub!(/\<\/tbody\><\/table\>\ *\n?\ *\<table\>\<tbody\>/, '')
+
+    return html
+  end
+
 
 
   def to_html
@@ -267,6 +318,53 @@ class Communication < ActiveRecord::Base
   end
 
   def to_pdf
+    file = Rails.root.join("tmp", "communications", "c#{self.id}-#{Time.now.to_f}.pdf")
+    FileUtils.mkdir_p file.dirname
+    made_on = Time.now
+    pdf = Prawn::Document.new(:page_size => "A4", :info => {:Author => self.sender_label, :Creator => "Agrimail", :Title => self.title, :Subject => self.subject, :CreationDate => made_on, :ModDate => made_on}, :margin => [mm2pt(10)], :skip_page_creation => true) # :compress => true, :optimize_objects => true
+    pdf.font_size(10)
+
+    # Footer
+    unless self.footer.blank?
+      pdf.repeat :all do
+        pdf.text_box self.class.beautify_for_pdf(self.footer), :size => 9, :align => :center, :color => "777777", :at => [mm2pt(10), mm2pt(10)], :inline_format => true
+      end
+    end
+
+    pdf.start_new_page
+
+    # Header
+    header = self.header
+    if header.file?
+      image = pdf.image(header.path(:web), :fit => [mm2pt(190), mm2pt(150)])
+      pdf.move_down(-image.height*0.25)
+    end
+    pdf.text self.title, :align => :right
+
+    # Introduction
+    unless self.introduction.blank?
+      pdf.move_down(10)
+      pdf.text self.class.beautify_for_pdf(self.introduction), :align => :justify, :inline_format => true
+    end
+
+    # Articles
+    for article in self.articles
+      pdf.move_down(10)
+      pdf.text self.class.beautify_for_pdf(article.title), :size => 13, :style => :bold, :inline_format => true
+      pdf.text self.class.beautify_for_pdf(article.content), :align => :justify, :inline_format => true
+    end
+
+    # Conclusion
+    unless self.conclusion.blank?
+      pdf.move_down(10)
+      pdf.text self.class.beautify_for_pdf(self.conclusion), :align => :justify, :inline_format => true
+    end
+
+
+
+
+    pdf.render_file file
+    return file
   end
 
   def to_text

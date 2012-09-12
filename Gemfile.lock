@@ -5,6 +5,10 @@ GEM
     actionmailer (3.2.8)
       actionpack (= 3.2.8)
       mail (~> 2.4.4)
+    actionmailer_inline_css (1.5.2)
+      actionmailer (>= 3.0.0)
+      nokogiri (>= 1.4.4)
+      premailer (>= 1.7.1)
     actionpack (3.2.8)
       activemodel (= 3.2.8)
       activesupport (= 3.2.8)
@@ -75,6 +79,7 @@ GEM
     haml (3.1.7)
     hashery (2.0.1)
     hike (1.2.1)
+    htmlentities (4.3.1)
     i18n (0.6.1)
     i18n-complements (0.0.4)
       i18n (>= 0.6)
@@ -111,6 +116,9 @@ GEM
     prawn (0.12.0)
       pdf-reader (>= 0.9.0)
       ttfunk (~> 1.0.2)
+    premailer (1.7.3)
+      css_parser (>= 1.1.9)
+      htmlentities (>= 4.0.0)
     rack (1.4.1)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -172,6 +180,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  actionmailer_inline_css
   active-list
   acts_as_list
   annotate
