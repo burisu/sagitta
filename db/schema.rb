@@ -11,7 +11,21 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120822124211) do
+ActiveRecord::Schema.define(:version => 20120911094246) do
+
+  create_table "articles", :force => true do |t|
+    t.integer "communication_id", :null => false
+    t.integer "newsletter_id",    :null => false
+    t.integer "rubric_id"
+    t.integer "position"
+    t.string  "title"
+    t.text    "content"
+    t.string  "readmore_url"
+  end
+
+  add_index "articles", ["communication_id"], :name => "index_articles_on_communication_id"
+  add_index "articles", ["newsletter_id"], :name => "index_articles_on_newsletter_id"
+  add_index "articles", ["rubric_id"], :name => "index_articles_on_rubric_id"
 
   create_table "communications", :force => true do |t|
     t.integer  "client_id",                             :null => false
@@ -38,6 +52,9 @@ ActiveRecord::Schema.define(:version => 20120822124211) do
     t.string   "message_label"
     t.string   "target_url"
     t.string   "key"
+    t.text     "introduction"
+    t.text     "conclusion"
+    t.integer  "newsletter_id"
   end
 
   add_index "communications", ["client_id"], :name => "index_communications_on_client_id"
@@ -55,6 +72,46 @@ ActiveRecord::Schema.define(:version => 20120822124211) do
   add_index "effects", ["communication_id"], :name => "index_effects_on_communication_id"
   add_index "effects", ["touchable_id"], :name => "index_effects_on_touchable_id"
 
+  create_table "newsletter_rubrics", :force => true do |t|
+    t.integer "newsletter_id", :null => false
+    t.string  "name",          :null => false
+    t.text    "article_style"
+  end
+
+  add_index "newsletter_rubrics", ["newsletter_id"], :name => "index_newsletter_rubrics_on_newsletter_id"
+
+  create_table "newsletters", :force => true do |t|
+    t.integer  "client_id",           :null => false
+    t.string   "name",                :null => false
+    t.string   "ecofax_number"
+    t.string   "ecofax_password"
+    t.string   "header_file_name"
+    t.integer  "header_file_size"
+    t.string   "header_content_type"
+    t.datetime "header_updated_at"
+    t.string   "header_fingerprint"
+    t.text     "introduction"
+    t.text     "conclusion"
+    t.text     "footer"
+    t.text     "global_style"
+  end
+
+  add_index "newsletters", ["client_id"], :name => "index_newsletters_on_client_id"
+
+  create_table "pieces", :force => true do |t|
+    t.integer  "communication_id",      :null => false
+    t.integer  "article_id"
+    t.string   "name"
+    t.string   "document_file_name"
+    t.integer  "document_file_size"
+    t.string   "document_content_type"
+    t.datetime "document_updated_at"
+    t.string   "document_fingerprint"
+  end
+
+  add_index "pieces", ["article_id"], :name => "index_pieces_on_article_id"
+  add_index "pieces", ["communication_id"], :name => "index_pieces_on_communication_id"
+
   create_table "touchables", :force => true do |t|
     t.integer  "communication_id",                    :null => false
     t.string   "email",                               :null => false
@@ -63,6 +120,7 @@ ActiveRecord::Schema.define(:version => 20120822124211) do
     t.datetime "updated_at",                          :null => false
     t.string   "key"
     t.boolean  "test",             :default => false, :null => false
+    t.string   "fax"
   end
 
   add_index "touchables", ["communication_id"], :name => "index_touchables_on_communication_id"

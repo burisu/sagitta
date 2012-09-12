@@ -6,12 +6,11 @@ module ApplicationHelper
     html << "<div>"
     for article in comm.articles
       art = ""
-      title_style = comm.newsletter.titles_style+"; color: #{article.rubric.color}"
       title = article.title
-      art << content_tag(:h2, title.html_safe, :style => title_style)
+      art << content_tag(:h2, title.html_safe)
       art << content_tag(:div, article.content)
-      unless article.link_url.blank?
-        art << link_to("Lire la suite", article.link_url, :style => "display: block;")
+      unless article.readmore_url.blank?
+        art << link_to("Lire la suite...", article.readmore_url, :style => "display: block;")
       end
       html << content_tag(:div, art.html_safe)
     end

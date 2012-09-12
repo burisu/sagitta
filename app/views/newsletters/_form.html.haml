@@ -4,12 +4,8 @@
   =f.input :name
   =f.input :ecofax_number
   =f.input :ecofax_password
-  =f.input :font_stack
   =f.input :header
-  =f.input :header_text_position, :input_html => {:rows => 2, :cols => 80}
-  =f.input :header_text_style, :input_html => {:rows => 2, :cols => 80}
   =f.input :introduction, :input_html => {:rows => 3, :cols => 80}
   =f.input :conclusion, :input_html => {:rows => 3, :cols => 80}
   =f.input :footer, :input_html => {:rows => 3, :cols => 80}
-  =f.input :titles_style, :input_html => {:rows => 2, :cols => 80}
-  =f.input :styles, :input_html => {:rows => 2, :cols => 80}
+  =f.input :global_style, :input_html => {:rows => @newsletter.global_style.split(/\n/).size + 1, :cols => 80}

@@ -13,7 +13,11 @@ class HomeController < ApplicationController
       head :not_found
       return
     end
-    render :action => :show, :layout => false
+    if @communication.newsletter
+      render :inline => @communication.to_html
+    else
+      render :action => :show, :layout => false
+    end
   end
 
 end

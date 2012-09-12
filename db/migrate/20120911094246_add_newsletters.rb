@@ -1,11 +1,10 @@
 class AddNewsletters < ActiveRecord::Migration
   def change
     create_table :newsletters do |t|
-      t.belongs_to :client
-      t.string :name
-      t.string :ecofax_number
-      t.string :ecofax_password
-      t.string   :font_stack
+      t.belongs_to :client, :null => false
+      t.string   :name,     :null => false
+      t.string   :ecofax_number
+      t.string   :ecofax_password
       t.string   :header_file_name
       t.integer  :header_file_size
       t.string   :header_content_type
@@ -14,32 +13,32 @@ class AddNewsletters < ActiveRecord::Migration
       t.text     :introduction
       t.text     :conclusion
       t.text     :footer
-      t.text     :style
+      t.text     :global_style
     end
     add_index :newsletters, :client_id
 
     create_table :newsletter_rubrics do |t|
-      t.belongs_to :newsletter
-      t.string :name, :null => false
-      t.string :style
+      t.belongs_to :newsletter, :null => false
+      t.string     :name,       :null => false
+      t.text       :article_style
     end
     add_index :newsletter_rubrics, :newsletter_id
 
     create_table :articles do |t|
-      t.belongs_to :communication
-      t.belongs_to :newsletter
+      t.belongs_to :communication, :null => false
+      t.belongs_to :newsletter,    :null => false
       t.belongs_to :rubric
-      t.integer :position
-      t.string :title
-      t.text :content
-      t.text :link_url
+      t.integer    :position
+      t.string     :title
+      t.text       :content
+      t.string     :readmore_url
     end
     add_index :articles, :communication_id
     add_index :articles, :newsletter_id
     add_index :articles, :rubric_id
 
     create_table :pieces do |t|
-      t.belongs_to :communication
+      t.belongs_to :communication, :null => false
       t.belongs_to :article
       t.string   :name
       t.string   :document_file_name

@@ -15,6 +15,9 @@ gem 'simple_form'
 gem 'i18n-complements'
 gem 'rails-i18n'
 gem 'acts_as_list'
+gem 'prawn'
+gem 'nokogiri'
+gem 'css_parser'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -30,6 +33,12 @@ group :assets do
 end
 
 gem 'jquery-rails'
+
+group :development do
+  gem "letter_opener"
+  gem "annotate" #, :git => "https://github.com/ctran/annotate_models.git"
+  gem 'rack-mini-profiler'
+end
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

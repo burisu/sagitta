@@ -2,8 +2,7 @@ class NewslettersController < AdminController
 
   list :rubrics, :model => :newsletter_rubric, :conditions => {:newsletter_id => ["session[:current_newsletter_id]"]} do |t|
     t.column :name
-    t.column :color
-    t.column :border
+    t.column :article_style
     t.action :edit
     t.action :destroy
   end

@@ -12,15 +12,13 @@ class UsersController < AdminController
   end
 
 
-  list :newsletters, :conditions => {:client_id => ["current_user.id"]} do |t|
+  list :newsletters, :conditions => {:client_id => ["session[:current_user_id]"]} do |t|
     t.column :name, :url => true
-    t.column :introduction
-    t.column :conclusion
     t.action :edit
     t.action :destroy
   end
 
-  list :communications, :conditions => {:client_id => ["current_user.id"]} do |t|
+  list :communications, :conditions => {:client_id => ["session[:current_user_id]"]} do |t|
     t.column :name, :url => true
     t.column :planned_on
     t.column :name, :through => :newsletter, :url => true
@@ -28,7 +26,7 @@ class UsersController < AdminController
     t.action :destroy
   end
 
-  list(:untouchables, :conditions => {:client_id => ['current_user.id']}) do |t|
+  list(:untouchables, :conditions => {:client_id => ['session[:current_user_id]']}) do |t|
     t.column :email
     t.action :edit
     t.action :destroy
@@ -41,6 +39,7 @@ class UsersController < AdminController
       redirect_to user_url(current_user)
       return
     end
+    session[:current_user_id] = @user.id
   end
   
   def new

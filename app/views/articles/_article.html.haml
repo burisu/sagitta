@@ -1,5 +1,7 @@
-%h2{:name => article.title.parameterize}=link_to(article.title, (article.link_url.blank? ? "#"+article.title.parameterize : article.link_url))
-.content=article.content
+%h2=Communication.beautify_for_html(article.title).html_safe
+.content=Communication.beautify_for_html(article.content).html_safe
+-unless article.readmore_url.blank?
+  .readmore=link_to("Lire la suite...", article.readmore_url)
 .toolbar
   =link_to("Éditer", edit_article_url(article))
   =link_to("Supprimer", article_url(article), :method => "delete", :confirm => "Sure ?")

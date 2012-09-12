@@ -29,7 +29,10 @@
     %label=Communication.human_attribute_name(x)
     %span=@communication.send(x)
 -if @communication.newsletter
-  %h2 Newsletter
+  %h2 
+    Newsletter
+    -if current_user.administrator
+      =link_to(@communication.newsletter.name, edit_newsletter_url(@communication.newsletter))
   .toolbar
     =link_to("Ajouter un article", new_article_url(:communication_id => @communication.id))
   =render :partial => "articles/article", :collection => @communication.articles
