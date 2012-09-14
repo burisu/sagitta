@@ -9,7 +9,7 @@
 %h2 E-mailings
 .toolbar
   =link_to("Nouveau flyer", new_communication_url(:client_id => @user.id))
-  -for newsletter in current_user.newsletters
+  -for newsletter in @user.newsletters
     =link_to("Nouveau &laquo;&nbsp;#{newsletter.name}&nbsp;&raquo;".html_safe, new_communication_url(:client_id => @user.id, :newsletter_id => newsletter.id))
 =list :communications
 

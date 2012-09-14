@@ -26,7 +26,7 @@ class CommunicationsController < AdminController
   
   def new
     @communication = Communication.new(:client_id => params[:client_id])
-    @communication.newsletter = current_user.newsletters.find_by_id(params[:newsletter_id])
+    @communication.newsletter = (current_user.administrator ? Newsletter : current_user.newsletters).find_by_id(params[:newsletter_id])
     if @communication.newsletter
       @communication.introduction = @communication.newsletter.introduction
       @communication.conclusion   = @communication.newsletter.conclusion
