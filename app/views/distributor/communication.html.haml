@@ -1,0 +1,43 @@
+!!!
+-if @communication.newsletter
+  %html
+    %head
+      %title=textize(@communication.subject)
+      %style{:type => "text/css"}=@communication.style(:web)
+    %body
+      -width = @communication.header.styles[:web].geometry.split('x')[0]
+      %table#page{:style => "margin: 0 auto"}
+        -if @communication.header.file?
+          %tr
+            %td{:width => width}=image_tag(attachments['header-image.png'].url)
+        %tr
+          %td{:width => width, :align => :right}
+            %h1=beautify(@communication.title + " ‒ " + @communication.planned_on.l)
+        %tr
+          %td{:width => width}
+            -unless @communication.introduction.blank?
+              #introduction=beautify(@communication.introduction)
+            -if @communication.articles.size > 0
+              #articles
+                -for article in @communication.articles
+                  .article{:class => "article-#{article.rubric_id}"}
+                    %h2=beautify(article.title)
+                    .content=beautify(article.content)
+        %tr
+          %td{:width => width, :height => 10}
+        %tr
+          %td{:width => width}
+            -unless @communication.conclusion.blank?
+              #conclusion=beautify(@communication.conclusion)
+            -unless @communication.footer.blank?
+              #footer=beautify(@communication.footer)
+-else
+  %html{:style => "background: #EEE"}
+    %body{:style => "background: #EEE"}
+      #page{:style => "width: 750px; margin: 8px auto;"}
+        -link_style = "text-align: center; margin: 8px auto; display: block; border: none; font-size: 11px; "
+        -unless @communication.unreadable_label.blank?
+          %a{:style => link_style, :href => @message_url}=@communication.unreadable_label
+        %a{:style => link_style, :href => @communication.target_url}=image_tag attachments[@communication.flyer.original_filename].url
+        -unless @communication.unsubscribe_label.blank?
+          %a{:style => link_style, :href => @unsubscribe_url}=@communication.unsubscribe_label

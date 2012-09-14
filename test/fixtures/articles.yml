@@ -3,13 +3,13 @@
 # Table name: articles
 #
 #  id               :integer          not null, primary key
-#  communication_id :integer
-#  newsletter_id    :integer
+#  communication_id :integer          not null
+#  newsletter_id    :integer          not null
 #  rubric_id        :integer
 #  position         :integer
 #  title            :string(255)
 #  content          :text
-#  link_url         :text
+#  readmore_url     :string(255)
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html

@@ -16,7 +16,7 @@
 class Touchable < ActiveRecord::Base
   belongs_to :communication
   has_many :effects
-  attr_accessible :email, :test
+  attr_accessible :email, :fax, :test
 
   before_validation do
     if self.key.blank?

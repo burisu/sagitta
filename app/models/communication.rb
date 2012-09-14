@@ -34,7 +34,7 @@
 #
 
 class Communication < ActiveRecord::Base
-  attr_accessible :client_id, :name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message, :flyer, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :newsletter_id, :introduction, :conclusion
+  attr_accessible :client_id, :name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message, :flyer, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :newsletter_id, :introduction, :conclusion, :title
   belongs_to :client, :class_name => "User", :counter_cache => true
   belongs_to :newsletter
   has_attached_file :flyer, {
@@ -47,7 +47,7 @@ class Communication < ActiveRecord::Base
   has_many :touchables, :dependent => :delete_all, :order => :email
   has_many :testables, :class_name => "Touchable", :dependent => :delete_all, :order => :email, :conditions => {:test => true}
 
-  delegate :global_style, :header, :footer, :to => :newsletter
+  delegate :global_style, :print_style, :header, :footer, :to => :newsletter
 
   include Prawn::Measurements
   
@@ -65,16 +65,24 @@ class Communication < ActiveRecord::Base
     end
   end
 
-  def distribute_to(touchable)
+  def distribute_to(touchable, mode = :all)
+    mode ||= :all
+    mode = [:email, :fax] if mode == :all
+    mode = [mode] unless mode.is_a? Array
     exception = []
-    begin
-      if self.newsletter
-        Distributor.newsletter(touchable).deliver
-      else
-        Distributor.news(touchable).deliver
+    if mode.include?(:email) and !touchable.email.blank?
+      begin
+        Distributor.communication(touchable).deliver
+      rescue Exception => e
+        exception << e
       end
-    rescue Exception => e
-      exception << e
+    end
+    if mode.include?(:fax) and !touchable.fax.blank?
+      begin
+        Distributor.fax_request(touchable).deliver
+      rescue Exception => e
+        exception << e
+      end
     end
     return exception
   end
@@ -83,7 +91,7 @@ class Communication < ActiveRecord::Base
     errors = []
     # self.touchables.where(options[:where]).where("email NOT IN (SELECT email FROM untouchables WHERE client_id=?)", self.client_id).find_each(:batch_size => 500) do |touchable|
     self.touchables.where(options[:where]).where("email NOT IN (SELECT email FROM untouchables)", self.client_id).find_each(:batch_size => 500) do |touchable|
-      errors += self.distribute_to(touchable)
+      errors += self.distribute_to(touchable, options[:only])
       touchable.update_attribute(:sent_at, Time.now)
     end
     # self.distributed_at = Time.now
@@ -114,16 +122,27 @@ class Communication < ActiveRecord::Base
     return key
   end
 
-  def title
-    self.subject
-  end
-
   # Generate styles in CSS format
-  def style
-    style = self.global_style
+  def style(media = :screen, options = {})
+    style = ""
+    # Global style
+    style << self.global_style
+    # Rubric styles
     for rubric in self.newsletter.rubrics
-      style << "\n.article.article-#{rubric.id} {\n" + rubric.article_style + "\n}\n"
+      unless rubric.article_style.blank?
+        style << "\n.article.article-#{rubric.id} {\n" + rubric.article_style + "\n}\n"
+      end
     end
+    if media == :print
+      style << self.print_style
+      for rubric in self.newsletter.rubrics
+        unless rubric.article_print_style.blank?
+          style << "\n.article.article-#{rubric.id} {\n" + rubric.article_print_style + "\n}\n"
+        end
+      end
+    end
+
+    # Interpolations
     if self.newsletter.header.file?
       header = self.newsletter.header
       geo = Paperclip::Geometry.from_file(header.path(:web))
@@ -131,12 +150,14 @@ class Communication < ActiveRecord::Base
       File.open(header.path(:web), "rb") do |file|
         style.gsub!('header-image', "url(data:image/jpg;base64,#{::Base64.encode64(file.read).to_s.gsub(/\s/, '')})")
       end
+      style.gsub!('header-path', header.path(:web))
+      style.gsub!('header-url', options[:header_url] || header.url(:web))
       style.gsub!('header-height', "#{geo.height}px")
       style.gsub!('header-width', "#{geo.width}px")
     end
     # raise style
-    engine = Sass::Engine.new(style, :syntax => :scss)
-    return engine.render
+    engine = Sass::Engine.new(style, :syntax => :scss, :style => :compressed)
+    return engine.render()
   end
 
 
@@ -158,8 +179,8 @@ class Communication < ActiveRecord::Base
       link = link[2..-3].strip.split("|")
       url = link[0].strip
       url = "http://"+url unless url.match(/^\w+\:\/\//)
-      title = link[1] || url
-      "<a href=\"#{url}\">#{title}</a>"
+      label = link[1] || url
+      "<a href=\"#{url}\">#{label}</a>"
     end
     # Tables
     classes = [:odd, :even]
@@ -181,9 +202,9 @@ class Communication < ActiveRecord::Base
         "<#{t} class=\"a-#{align}\">#{data.strip}</#{t}>"
       end
       c = classes[classes.index(c) ? (classes.index(c) + 1)  : 0] || classes[0]
-      "<table><tbody><tr class=\"#{c}\">" + cells.join + "</tr></tbody></table>"
+      "<table class=\"cnt\"><tbody><tr class=\"#{c}\">" + cells.join + "</tr></tbody></table>"
     end
-    html.gsub!(/\<\/tbody\><\/table\>\ *\n?\ *\<table\>\<tbody\>/, '')
+    html.gsub!(/\<\/tbody\><\/table\>\ *\n?\ *\<table class\=\"cnt\"\>\<tbody\>/, '')
 
     return html
   end
@@ -206,8 +227,8 @@ class Communication < ActiveRecord::Base
       link = link[2..-3].strip.split("|")
       url = link[0].strip
       url = "http://"+url unless url.match(/^\w+\:\/\//)
-      title = link[1] || url
-      "<link href=\"#{url}\">#{title}</link>"
+      label = link[1] || url
+      "<link href=\"#{url}\">#{label}</link>"
     end
     # Tables
     classes = [:odd, :even]
@@ -238,134 +259,154 @@ class Communication < ActiveRecord::Base
 
 
 
-  def to_html
+  def to_html(media = :screen)
     html = ""
     html << "<!DOCTYPE html>"
     html << "<html>"
     html << "<head>"
     html << "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" />"
     html << "<meta charset=\"UTF-8\" />"
-    html << "<title>" + self.title + "</title>"
+    html << "<title>" + self.subject + "</title>"
+    html << "<style>" + self.style(media) + "</style>"
+# '@import url("http://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic");'
+
     html << "</head>"
     html << "<body>"
+
     html << "<div id=\"page\">"
 
-    # Header
-    html << "<div id=\"header\">"
-    html << "<h1>"+self.class.beautify_for_html(self.title)+"</h1>"
-    html << "</div>" # /header    
-    # Introduction
-    unless self.introduction.blank?
-      html << "<div id=\"introduction\">"
-      html << self.class.beautify_for_html(self.introduction)
-      html << "</div>" # /introduction
-    end
-
-    # Articles
-    html << "<div id=\"articles\">"
-    for article in self.articles
-      html << "<div class=\"article article-#{article.rubric_id}\">"
-      html << "<h2>" + self.class.beautify_for_html(article.title) + "</h2>"
-      html << "<div class=\"content\">" + self.class.beautify_for_html(article.content) + "</div>"
-      html << "</div>" # /article
-    end
-    html << "</div>" # /articles
-
-    # Conclusion
-    unless self.conclusion.blank?
-      html << "<div id=\"conclusion\">"
-      html << self.class.beautify_for_html(self.conclusion)
-      html << "</div>" # /conclusion 
-    end
-
-    # Footer
-    unless self.footer.blank?
-      html << "<div id=\"footer\">"
-      html << self.class.beautify_for_html(self.footer)
-      html << "</div>" # /footer
+    if self.newsletter
+      # Header
+      #html << "<div id=\"header\">"
+      if media == :print and self.header.file?
+        html << "<img src=\"" + self.header.path(:web) + "\">"
+      end
+      html << "<h1>"+self.class.beautify_for_html(self.title)+"</h1>"
+      #html << "</div>" # /header    
+      # Introduction
+      unless self.introduction.blank?
+        html << "<div id=\"introduction\">"
+        html << self.class.beautify_for_html(self.introduction)
+        html << "</div>" # /introduction
+      end
+      
+      # Articles
+      html << "<div id=\"articles\">"
+      for article in self.articles
+        html << "<div class=\"article article-#{article.rubric_id}\">"
+        html << "<h2>" + self.class.beautify_for_html(article.title) + "</h2>"
+        html << "<div class=\"content\">" + self.class.beautify_for_html(article.content) + "</div>"
+        html << "</div>" # /article
+      end
+      html << "</div>" # /articles
+      
+      # Conclusion
+      unless self.conclusion.blank?
+        html << "<div id=\"conclusion\">"
+        html << self.class.beautify_for_html(self.conclusion)
+        html << "</div>" # /conclusion 
+      end
+      
+      # Footer
+      unless self.footer.blank?
+        html << "<div id=\"footer\">"
+        html << self.class.beautify_for_html(self.footer)
+        html << "</div>" # /footer
+      end
+    else
+      html << "<a href='#{@communication.target_url}'>"
+      if media == :print and self.flyer.file?
+        html << "<img src='#{self.flyer.path(:web)}'/>"
+      end
+      html << "</a>"
     end
 
     html << "</div>" # /page
     html << "</body>"
     html << "</html>"
+    return html
     
-    # Generate CSS
-    css = self.style
+    # # Generate CSS
+    # css = self.style
 
-    # Merge HTML and CSS
-    doc = Nokogiri::HTML(html) do |config|
-      config.strict.nonet.noblanks
-    end
+    # # Merge HTML and CSS
+    # doc = Nokogiri::HTML(html) do |config|
+    #   config.strict.nonet.noblanks
+    # end
 
-    rules = css.split(/\s*\}\s*/).collect{|x| x.split(/\s*\{\s*/).collect{|x| x.strip.gsub(/\s+/, ' ')}}
-    for selector, properties in rules
-      doc.css(selector).each do |node|
-        style = node["style"].to_s.split(/\s*\;\s+/).inject({}) do |hash, property|
-          data = property.split(/\:/)
-          hash[data[0].strip.downcase] = data[1..-1].join(":").strip
-          hash 
-        end
-        new_style = properties.to_s.split(/\s*\;\s+/).inject({}) do |hash, property|
-          data = property.split(/\:/)
-          hash[data[0].strip.downcase] = data[1..-1].join(":").strip
-          hash
-        end
-        node["style"] = style.merge(new_style).collect{|k,v| "#{k}: #{v}"}.join("; ")
-      end
-    end
-
-    return doc.to_s
+    # rules = css.split(/\s*\}\s*/).collect{|x| x.split(/\s*\{\s*/).collect{|x| x.strip.gsub(/\s+/, ' ')}}
+    # for selector, properties in rules
+    #   doc.css(selector).each do |node|
+    #     style = node["style"].to_s.split(/\s*\;\s+/).inject({}) do |hash, property|
+    #       data = property.split(/\:/)
+    #       hash[data[0].strip.downcase] = data[1..-1].join(":").strip
+    #       hash 
+    #     end
+    #     new_style = properties.to_s.split(/\s*\;\s+/).inject({}) do |hash, property|
+    #       data = property.split(/\:/)
+    #       hash[data[0].strip.downcase] = data[1..-1].join(":").strip
+    #       hash
+    #     end
+    #     node["style"] = style.merge(new_style).collect{|k,v| "#{k}: #{v}"}.join("; ")
+    #   end
+    # end
+    # return doc.to_s
   end
 
   def to_pdf
-    file = Rails.root.join("tmp", "communications", "c#{self.id}-#{Time.now.to_f}.pdf")
-    FileUtils.mkdir_p file.dirname
-    made_on = Time.now
-    pdf = Prawn::Document.new(:page_size => "A4", :info => {:Author => self.sender_label, :Creator => "Agrimail", :Title => self.title, :Subject => self.subject, :CreationDate => made_on, :ModDate => made_on}, :margin => [mm2pt(10)], :skip_page_creation => true) # :compress => true, :optimize_objects => true
-    pdf.font_size(10)
-
-    # Footer
-    unless self.footer.blank?
-      pdf.repeat :all do
-        pdf.text_box self.class.beautify_for_pdf(self.footer), :size => 9, :align => :center, :color => "777777", :at => [mm2pt(10), mm2pt(10)], :inline_format => true
-      end
-    end
-
-    pdf.start_new_page
-
-    # Header
-    header = self.header
-    if header.file?
-      image = pdf.image(header.path(:web), :fit => [mm2pt(190), mm2pt(150)])
-      pdf.move_down(-image.height*0.25)
-    end
-    pdf.text self.title, :align => :right
-
-    # Introduction
-    unless self.introduction.blank?
-      pdf.move_down(10)
-      pdf.text self.class.beautify_for_pdf(self.introduction), :align => :justify, :inline_format => true
-    end
-
-    # Articles
-    for article in self.articles
-      pdf.move_down(10)
-      pdf.text self.class.beautify_for_pdf(article.title), :size => 13, :style => :bold, :inline_format => true
-      pdf.text self.class.beautify_for_pdf(article.content), :align => :justify, :inline_format => true
-    end
-
-    # Conclusion
-    unless self.conclusion.blank?
-      pdf.move_down(10)
-      pdf.text self.class.beautify_for_pdf(self.conclusion), :align => :justify, :inline_format => true
-    end
-
-
-
-
-    pdf.render_file file
-    return file
+    Wisepdf::Writer.new.to_pdf(self.to_html(:print))
   end
+
+
+  # def to_pdf
+  #   file = Rails.root.join("tmp", "communications", "c#{self.id}-#{Time.now.to_f}.pdf")
+  #   FileUtils.mkdir_p file.dirname
+  #   made_on = Time.now
+  #   pdf = Prawn::Document.new(:page_size => "A4", :info => {:Author => self.sender_label, :Creator => "Agrimail", :Title => self.title, :Subject => self.subject, :CreationDate => made_on, :ModDate => made_on}, :margin => [mm2pt(10)], :skip_page_creation => true) # :compress => true, :optimize_objects => true
+  #   pdf.font_size(10)
+
+  #   # Footer
+  #   unless self.footer.blank?
+  #     pdf.repeat :all do
+  #       pdf.text_box self.class.beautify_for_pdf(self.footer), :size => 9, :align => :center, :color => "777777", :at => [mm2pt(10), mm2pt(10)], :inline_format => true
+  #     end
+  #   end
+
+  #   pdf.start_new_page
+
+  #   # Header
+  #   header = self.header
+  #   if header.file?
+  #     image = pdf.image(header.path(:web), :fit => [mm2pt(190), mm2pt(150)])
+  #     pdf.move_down(-image.height*0.25)
+  #   end
+  #   pdf.text self.title, :align => :right
+
+  #   # Introduction
+  #   unless self.introduction.blank?
+  #     pdf.move_down(10)
+  #     pdf.text self.class.beautify_for_pdf(self.introduction), :align => :justify, :inline_format => true
+  #   end
+
+  #   # Articles
+  #   for article in self.articles
+  #     pdf.move_down(10)
+  #     pdf.text self.class.beautify_for_pdf(article.title), :size => 13, :style => :bold, :inline_format => true
+  #     pdf.text self.class.beautify_for_pdf(article.content), :align => :justify, :inline_format => true
+  #   end
+
+  #   # Conclusion
+  #   unless self.conclusion.blank?
+  #     pdf.move_down(10)
+  #     pdf.text self.class.beautify_for_pdf(self.conclusion), :align => :justify, :inline_format => true
+  #   end
+
+
+
+
+  #   pdf.render_file file
+  #   return file
+  # end
 
   def to_text
     

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120911094246) do
+ActiveRecord::Schema.define(:version => 20120914090551) do
 
   create_table "articles", :force => true do |t|
     t.integer "communication_id", :null => false
@@ -55,6 +55,7 @@ ActiveRecord::Schema.define(:version => 20120911094246) do
     t.text     "introduction"
     t.text     "conclusion"
     t.integer  "newsletter_id"
+    t.string   "title"
   end
 
   add_index "communications", ["client_id"], :name => "index_communications_on_client_id"
@@ -73,9 +74,10 @@ ActiveRecord::Schema.define(:version => 20120911094246) do
   add_index "effects", ["touchable_id"], :name => "index_effects_on_touchable_id"
 
   create_table "newsletter_rubrics", :force => true do |t|
-    t.integer "newsletter_id", :null => false
-    t.string  "name",          :null => false
+    t.integer "newsletter_id",       :null => false
+    t.string  "name",                :null => false
     t.text    "article_style"
+    t.text    "article_print_style"
   end
 
   add_index "newsletter_rubrics", ["newsletter_id"], :name => "index_newsletter_rubrics_on_newsletter_id"
@@ -94,6 +96,7 @@ ActiveRecord::Schema.define(:version => 20120911094246) do
     t.text     "conclusion"
     t.text     "footer"
     t.text     "global_style"
+    t.text     "print_style"
   end
 
   add_index "newsletters", ["client_id"], :name => "index_newsletters_on_client_id"

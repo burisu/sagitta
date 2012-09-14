@@ -172,3 +172,10 @@ textarea {
   min-width: 750px;
   resize: vertical;
 }
+
+
+table.details { 
+  width: 100%;
+  .label {  color: #999; }
+  td { padding: 3px; }
+}

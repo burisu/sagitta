@@ -8,27 +8,24 @@
 .toolbar
   =link_to("Retour", user_url(@communication.client))
   =link_to("Modifier", edit_communication_url(@communication))
-  -if @communication.testables.count > 0
-    =link_to("Effectuer un test", distribute_communication_url(@communication), :method => :post)
   -unless @communication.distributed?
-    =link_to("Importer les e-mails", populate_communication_url(@communication))    
-    =link_to("Supprimer les e-mails", clear_communication_url(@communication), :method => :delete, "data-confirm" => "Sûr ?")
+    =link_to("Importer les cibles", populate_communication_url(@communication))    
+    =link_to("Supprimer les cibles", clear_communication_url(@communication), :method => :delete, "data-confirm" => "Sûr ?")
+  -unless @communication.newsletter
+    =link_to("Voir la page", message_url(@communication.key), :target => "_blank")
+  =link_to("Voir le PDF", communication_url(@communication, :format => :pdf))
+.toolbar
+  -if @communication.testables.count > 0
+    =link_to("Test e-mail", distribute_communication_url(@communication, :only => :email), :method => :post)
+    =link_to("Test fax", distribute_communication_url(@communication, :only => :fax), :method => :post)
+    =link_to("Test complet", distribute_communication_url(@communication), :method => :post)
   -if @communication.distributable?
-    =link_to("Effectuer l'envoi pour les non-envoyés", distribute_communication_url(@communication, :mode => "unsent"), :method => :post, "data-confirm" => "Sûr(e) ?")
-    =link_to("Effectuer l'envoi", distribute_communication_url(@communication, :mode => "real"), :method => :post, "data-confirm" => "Sûr(e) ?")
-  =link_to("Voir la page", message_url(@communication.key), :target => "_blank")
-  =link_to("Voir le PDF", communication_url(@communication, :format => :pdf), :target => "_blank")
-%h2 Détails
+    -#=link_to("Effectuer l'envoi pour les non-envoyés", distribute_communication_url(@communication, :mode => "unsent"), :method => :post, "data-confirm" => "Sûr(e) ?")
+    =link_to("Envoi e-mail", distribute_communication_url(@communication, :mode => "real", :only => :email), :method => :post, "data-confirm" => "Sûr(e) ?")
+    =link_to("Envoi fax", distribute_communication_url(@communication, :mode => "real", :only => :fax), :method => :post, "data-confirm" => "Sûr(e) ?")
+    =link_to("Envoi complet", distribute_communication_url(@communication, :mode => "real"), :method => :post, "data-confirm" => "Sûr(e) ?")
 
--fields = [:name, :planned_on, :sender_email, :sender_label, :reply_to_email]
--if @communication.newsletter
-  -fields += [:introduction, :conclusion]
--else
-  -fields += [:message, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :key]
--for x in fields
-  .field.input
-    %label=Communication.human_attribute_name(x)
-    %span=@communication.send(x)
+
 -if @communication.newsletter
   %h2 
     Newsletter
@@ -41,5 +38,21 @@
   %h2 Flyer
   =image_tag(@communication.flyer.url(:web))
 
-%h2 Cibles
-=list :touchables
+
+%h2 Détails
+-fields = [:name, :planned_on, :sender_email, :sender_label, :reply_to_email, :subject, :target_url]
+-if @communication.newsletter
+  -fields += [:title, :introduction, :conclusion]
+-else
+  -fields += [:message, :unreadable_label, :unsubscribe_label, :message_label]
+%table.details
+  -for x in fields
+    %tr.field.input
+      %td.label=Communication.human_attribute_name(x)
+      %td.span=beautify(@communication.send(x).to_s)
+
+
+
+-if @communication.touchables.count > 0
+  %h2 Cibles
+  =list :touchables

@@ -20,8 +20,8 @@ module ApplicationHelper
       link = link[2..-3].strip.split("|")
       url = link[0].strip
       url = "http://"+url unless url.match(/^\w+\:\/\//)
-      title = link[1] || url
-      "<a href=\"#{url}\">#{title}</a>"
+      label = link[1] || url
+      "<a href=\"#{url}\">#{label}</a>"
     end
     # Tables
     classes = [:odd, :even]
@@ -43,15 +43,46 @@ module ApplicationHelper
         "<#{t} class=\"a-#{align}\">#{data.strip}</#{t}>"
       end
       c = classes[classes.index(c) ? (classes.index(c) + 1)  : 0] || classes[0]
-      "<table><tbody><tr class=\"#{c}\">" + cells.join + "</tr></tbody></table>"
+      "<table class=\"cnt\"><tbody><tr class=\"#{c}\">" + cells.join + "</tr></tbody></table>"
     end
-    html.gsub!(/\<\/tbody\><\/table\>\ *\n?\ *\<table\>\<tbody\>/, '')
+    html.gsub!(/\<\/tbody\><\/table\>\ *\n?\ *\<table class\=\"cnt\"\>\<tbody\>/, '')
 
     return html.html_safe
   end
 
   # Convert enhanced text to simple text
   def textize(text)
+  end
+
+  def textify(etext, options = {})
+    coder = HTMLEntities.new
+    text = coder.decode(etext);
+    # List
+    text.gsub!(/^\ \ [\*\-]\ +(.*)\ *$/, '  ‒ \1')
+    # Emphase
+    text.gsub!(/([^\:])\/\/([^\s][^\/]+)\/\//, '\1  \2  ')
+    # Strong
+    text.gsub!(/\*\*([^\s\*][^\*]*[^\s\*])\*\*/, '  \1  ')
+    # URL
+    text.gsub!(/\[\[[^\|\]]+(\|[^\]]+)?\]\]/) do |link|
+      link = link[2..-3].strip.split("|")
+      url = link[0].strip
+      url = "http://"+url unless url.match(/^\w+\:\/\//)
+      label = link[1]
+      (label.blank? ? url : "#{label} (#{url})")
+    end
+    
+    text.gsub!(/([^\|\s|]|^)\s+([^\|\s]|$)/, '\1 \2')
+
+    text = word_wrap(text, :line_width => 100)
+
+    maxl = text.split(/\n/).collect{|l| l.strip.size}.max
+    if options[:mode] == :h1
+      text = "="*maxl+"\n"+text.strip+"\n"+"="*maxl
+    elsif options[:mode] == :h2
+      text = text.strip+"\n"+"-"*maxl
+    end
+    return text.html_safe
   end
 
 

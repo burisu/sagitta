@@ -18,7 +18,11 @@ gem 'acts_as_list'
 gem 'prawn'
 gem 'nokogiri'
 gem 'css_parser'
-gem 'actionmailer_inline_css' #
+# gem 'actionmailer_inline_css'
+# gem 'premailer-rails3'
+gem 'wisepdf'
+gem 'wkhtmltopdf-binary'
+gem 'htmlentities'
 
 # Gems used only for assets and not required
 # in production environments by default.

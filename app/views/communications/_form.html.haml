@@ -14,6 +14,7 @@
   =f.input :target_url
   -if @communication.newsletter
     =f.association :newsletter, :as => :hidden
+    =f.input :title
     =f.input :introduction, :input_html => {:rows => 3, :cols => 80}
     =f.input :conclusion, :input_html => {:rows => 3, :cols => 80}
   -else

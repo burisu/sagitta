@@ -2,10 +2,11 @@
 #
 # Table name: newsletter_rubrics
 #
-#  id            :integer          not null, primary key
-#  newsletter_id :integer
-#  name          :string(255)      not null
-#  article_style :string(255)
+#  id                  :integer          not null, primary key
+#  newsletter_id       :integer          not null
+#  name                :string(255)      not null
+#  article_style       :text
+#  article_print_style :text
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html

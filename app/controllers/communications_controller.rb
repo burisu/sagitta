@@ -6,8 +6,8 @@ class CommunicationsController < AdminController
 
   list :touchables, :conditions => ["communication_id = ? ", ['session[:communication_id]']] do |t|
     t.column :email
+    t.column :fax
     t.column :test
-    t.column :key
     t.action :edit
     t.action :destroy
   end
@@ -17,7 +17,7 @@ class CommunicationsController < AdminController
     @communication.save if @communication.key.blank?
     respond_to do |format|
       format.html { session[:communication_id] = @communication.id}
-      format.pdf { send_file @communication.to_pdf }
+      format.pdf  { send_data @communication.to_pdf }
       format.json { render :json => @communication }
       format.xml  { render :xml => @communication }
     end
@@ -30,6 +30,16 @@ class CommunicationsController < AdminController
     if @communication.newsletter
       @communication.introduction = @communication.newsletter.introduction
       @communication.conclusion   = @communication.newsletter.conclusion
+      if previous = @communication.client.communications.order(:created_at).last
+        for attr in [:name, :subject, :title, :sender_label, :sender_email, :reply_to_email, :target_url]
+          @communication.send("#{attr}=", previous.send(attr))
+        end
+        @communication.introduction = previous.introduction if @communication.introduction.blank?
+        @communication.conclusion   = previous.conclusion if @communication.conclusion.blank?
+        @communication.subject.succ! if @communication.subject.match(/\d+$/)
+        @communication.title.succ! if @communication.title.match(/\d+$/)
+        @communication.name.succ! if @communication.name.match(/\d+$/)
+      end
     end
     respond_to do |format|
       format.html { render_restfully_form(:multipart => true) }
@@ -99,9 +109,10 @@ class CommunicationsController < AdminController
       else
         raise Exception.new("Unvalid import method")
       end
-      clist = source.to_s.split(/\s+/).compact.collect{|x| x.to_s.mb_chars.downcase}.uniq
-      for email in clist
-        @communication.touchables.create(:email => email, :test => (params[:test].to_i == 1))
+      clist = source.to_s.split(/\s*\n+\s*/).compact.collect{|x| x.to_s.mb_chars.downcase}.uniq
+      for line in clist
+        infos = line.split(/\s*\,\s*/)
+        @communication.touchables.create(:email => infos[0], :fax => infos[1], :test => (params[:test].to_i == 1))
       end
       redirect_to communication_url(@communication)
     end
@@ -115,13 +126,18 @@ class CommunicationsController < AdminController
 
   def distribute
     @communication = Communication.find(params[:id])
-    @errors = if params[:mode] == "real"
-                @communication.distribute
-              elsif params[:mode] == "unsent"
-                @communication.distribute(:where => "sent_at IS NULL")
-              else
-                @communication.distribute(:where => "test")
-              end
+    settings = {}
+    if params[:mode] == "real"
+      settings[:where] = "TRUE"      
+    elsif params[:mode] == "unsent"
+      settings[:where] = "sent_at IS NULL"
+    else
+      settings[:where] = "test"
+    end
+    unless params[:only].blank?
+      settings[:only] = params[:only].to_sym
+    end
+    @errors = @communication.distribute(settings)
   end
 
 end
