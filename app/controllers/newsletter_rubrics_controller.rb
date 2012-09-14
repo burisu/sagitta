@@ -1,7 +1,7 @@
 class NewsletterRubricsController < AdminController
   
   def new
-    @newsletter_rubric = NewsletterRubric.new(:newsletter_id => current_user.newsletters.find_by_id(params[:newsletter_id]).id)
+    @newsletter_rubric = NewsletterRubric.new(:newsletter_id => (current_user.administrator ? params[:newsletter_id] : current_user.newsletters.find_by_id(params[:newsletter_id]).id))
     respond_to do |format|
       format.html { render_restfully_form(:multipart => true) }
       format.json { render :json => @newsletter_rubric }
