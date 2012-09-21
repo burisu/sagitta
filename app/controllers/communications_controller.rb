@@ -51,8 +51,10 @@ class CommunicationsController < AdminController
   
   def create
     @communication = Communication.new(params[:communication])
-    @communication.client = current_user unless current_user.administrator?
-    @communication.newsletter = current_user.newsletters.find_by_id(@communication.newsletter_id)
+    unless current_user.administrator?
+      @communication.client = current_user
+      @communication.newsletter = current_user.newsletters.find_by_id(@communication.newsletter_id)
+    end
     respond_to do |format|
       if @communication.save
         format.html { redirect_to (params[:redirect] || communication_url(@communication)) }
