@@ -46,6 +46,8 @@ module ApplicationHelper
       "<table class=\"cnt\"><tbody><tr class=\"#{c}\">" + cells.join + "</tr></tbody></table>"
     end
     html.gsub!(/\<\/tbody\><\/table\>\ *\n?\ *\<table class\=\"cnt\"\>\<tbody\>/, '')
+    html.gsub!(/\r\n/, '<br/>')
+    html.gsub!(/\n/, '<br/>')
 
     return html.html_safe
   end
