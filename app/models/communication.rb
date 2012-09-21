@@ -279,7 +279,7 @@ class Communication < ActiveRecord::Base
       # Header
       #html << "<div id=\"header\">"
       if media == :print and self.header.file?
-        html << "<img src=\"" + self.header.path(:web) + "\">"
+        html << "<img id=\"header\" src=\"" + self.header.path(:web) + "\">"
       end
       html << "<h1>"+self.class.beautify_for_html(self.title)+"</h1>"
       #html << "</div>" # /header    
