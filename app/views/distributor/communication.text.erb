@@ -1,5 +1,5 @@
 <% if @communication.newsletter -%>
-<%= textify(@communication.subject+ " ‒ "+@communication.planned_on.l, :mode => :h1) -%>
+<%= textify(@communication.full_title, :mode => :h1) -%>
 
 <%= textify(@communication.introduction) %>
 <% for article in @communication.articles %>

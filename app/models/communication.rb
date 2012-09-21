@@ -104,6 +104,12 @@ class Communication < ActiveRecord::Base
     !self.distributed and self.touchables.count > 0
   end
 
+  def full_title
+    t = self.title
+    t += (" ‒ " + self.planned_on.l) if self.newsletter.name.match(/\#/)
+    return t 
+  end
+
   def from
     text = self.sender_email
     unless self.sender_label.blank?

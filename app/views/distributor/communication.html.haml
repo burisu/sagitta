@@ -12,7 +12,7 @@
             %td{:width => width}=image_tag(attachments['header-image.png'].url)
         %tr
           %td{:width => width, :align => :right}
-            %h1=beautify(@communication.title + " ‒ " + @communication.planned_on.l)
+            %h1=beautify(@communication.full_title)
         %tr
           %td{:width => width}
             -unless @communication.introduction.blank?
