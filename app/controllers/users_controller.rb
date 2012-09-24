@@ -18,7 +18,7 @@ class UsersController < AdminController
     t.action :destroy
   end
 
-  list :communications, :conditions => {:client_id => ["session[:current_user_id]"]} do |t|
+  list :communications, :conditions => {:client_id => ["session[:current_user_id]"]}, :order => "planned_on DESC" do |t|
     t.column :name, :url => true
     t.column :planned_on
     t.column :name, :through => :newsletter, :url => true

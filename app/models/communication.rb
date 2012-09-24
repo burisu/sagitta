@@ -360,7 +360,8 @@ class Communication < ActiveRecord::Base
   end
 
   def to_pdf
-    Wisepdf::Writer.new.to_pdf(self.to_html(:print))
+    # Wisepdf::Writer.new.to_pdf(self.to_html(:print))
+    WickedPdf.new.pdf_from_string(self.to_html(:print))
   end
 
 

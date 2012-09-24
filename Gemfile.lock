@@ -168,7 +168,7 @@ GEM
       multi_json (~> 1.0, >= 1.0.2)
     warden (1.2.1)
       rack (>= 1.0)
-    wisepdf (1.2.5)
+    wicked_pdf (0.7.9)
     wkhtmltopdf-binary (0.9.9.1)
 
 PLATFORMS
@@ -199,5 +199,5 @@ DEPENDENCIES
   simple_form
   therubyracer
   uglifier (>= 1.0.3)
-  wisepdf
+  wicked_pdf
   wkhtmltopdf-binary
