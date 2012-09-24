@@ -113,7 +113,7 @@ class CommunicationsController < AdminController
         raise Exception.new("Unvalid import method")
       end
       clist = source.to_s.split(/\"*\s*\n+\s*\"*/).compact.collect{|x| x.to_s.mb_chars.downcase}.uniq.collect do |line|
-        line.split(/\s*[\,\;\"]+\s*/)
+        line.split(/\s*[\,\;\"]+\s*/)[0..1]
       end.uniq
       for infos in clist
         @communication.touchables.create(:email => infos[0], :fax => infos[1], :test => (params[:test].to_i == 1))
