@@ -69,35 +69,37 @@ class Communication < ActiveRecord::Base
     mode ||= :all
     mode = [:email, :fax] if mode == :all
     mode = [mode] unless mode.is_a? Array
-    exception = []
+    exception = nil
     if mode.include?(:email) and !touchable.email.blank?
       begin
         Distributor.communication(touchable).deliver
       rescue Exception => e
-        exception << e
+        exception = e
       end
     end
-    if mode.include?(:fax) and !touchable.fax.blank?
+    if mode.include?(:fax) and !touchable.fax.blank? and touchable.email.blank?
       begin
         Distributor.fax_request(touchable).deliver
       rescue Exception => e
-        exception << e
+        exception = e
       end
     end
     return exception
   end
 
   def distribute(options = {})
-    errors = []
-    # self.touchables.where(options[:where]).where("email NOT IN (SELECT email FROM untouchables WHERE client_id=?)", self.client_id).find_each(:batch_size => 500) do |touchable|
+    report = {}
+    report[:count] = 0
+    report[:errors] = {}
     self.touchables.where(options[:where]).where("email NOT IN (SELECT email FROM untouchables)", self.client_id).find_each(:batch_size => 500) do |touchable|
-      errors += self.distribute_to(touchable, options[:only])
+      report[:count] += 1
+      if x = self.distribute_to(touchable, options[:only])
+        report[:errors][touchable.id] = {:error => x, :touchable => touchable}
+      end
       touchable.update_attribute(:sent_at, Time.now)
     end
-    # self.distributed_at = Time.now
-    # self.distributed = true
     self.save
-    return errors
+    return report
   end
 
   def distributable?

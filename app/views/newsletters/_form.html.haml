@@ -3,7 +3,7 @@
     =f.association :client
   =f.input :name
   =f.input :ecofax_number
-  =f.input :ecofax_password
+  =f.input :ecofax_password, :as => :string
   =f.input :with_pdf
   =f.input :header
   =f.input :introduction, :input_html => {:rows => 3, :cols => 80}

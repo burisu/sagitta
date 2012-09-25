@@ -142,7 +142,7 @@ class CommunicationsController < AdminController
     unless params[:only].blank?
       settings[:only] = params[:only].to_sym
     end
-    @errors = @communication.distribute(settings)
+    @report = @communication.distribute(settings)
   end
 
 end

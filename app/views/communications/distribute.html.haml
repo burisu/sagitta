@@ -4,9 +4,14 @@
 .toolbar
   =link_to("Retour", communication_url(@communication))
 
-%h2="labels.x_errors".t(:count => @errors.size)
--for error in @errors
-  %h3
+%h2="#{@report[:count]} envois"
+
+%h2="labels.x_errors".t(:count => @report[:errors].size)
+-for touchable_id, infos in @report[:errors]
+  -error = infos[:error]
+  -touchable = infos[:touchable]
+  %h3="[##{touchable_id}] #{[touchable.email, touchable.fax].compact.join('/')}"
+  %h4
     =error.class.name+" :"
     %em=error.message
   %pre=error.backtrace.join("\n")

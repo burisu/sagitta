@@ -11,7 +11,7 @@ class Distributor < ActionMailer::Base
       attachments.inline[@communication.flyer.original_filename] = File.read(@communication.flyer.path(:web))
     end
     if @communication.newsletter and @communication.with_pdf
-      attachments[@communication.subject.parameterize+".pdf"] = {:mime_type => 'application/pdf', :content =>  @communication.to_pdf}
+      attachments[@communication.subject.parameterize+".pdf"] = @communication.to_pdf
     end
     if @communication.header.file?
       attachments.inline['header-image.png'] = File.read(@communication.header.path(:web))
@@ -27,7 +27,7 @@ class Distributor < ActionMailer::Base
     @communication = touchable.communication
     attachments[@communication.title.parameterize+".pdf"] = @communication.to_pdf
     attachments["numbers.txt"] = touchable.fax
-    settings = {:to => "fax@ecofax.fr", :from => @communication.from, :subject => @communication.newsletter.ecofax_number}
+    settings = {:to => "fax@ecofax.fr", :from => "fax-reply@agrimail.fr", :subject => @communication.newsletter.ecofax_number}
     settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
     mail(settings)
   end
