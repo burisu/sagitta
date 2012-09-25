@@ -211,6 +211,8 @@ class Communication < ActiveRecord::Base
       "<table class=\"cnt\"><tbody><tr class=\"#{c}\">" + cells.join + "</tr></tbody></table>"
     end
     html.gsub!(/\<\/tbody\><\/table\>\ *\n?\ *\<table class\=\"cnt\"\>\<tbody\>/, '')
+    html.gsub!(/\r\n/, '<br/>')
+    html.gsub!(/\n/, '<br/>')
 
     return html
   end
@@ -362,61 +364,6 @@ class Communication < ActiveRecord::Base
   def to_pdf
     # Wisepdf::Writer.new.to_pdf(self.to_html(:print))
     WickedPdf.new.pdf_from_string(self.to_html(:print))
-  end
-
-
-  # def to_pdf
-  #   file = Rails.root.join("tmp", "communications", "c#{self.id}-#{Time.now.to_f}.pdf")
-  #   FileUtils.mkdir_p file.dirname
-  #   made_on = Time.now
-  #   pdf = Prawn::Document.new(:page_size => "A4", :info => {:Author => self.sender_label, :Creator => "Agrimail", :Title => self.title, :Subject => self.subject, :CreationDate => made_on, :ModDate => made_on}, :margin => [mm2pt(10)], :skip_page_creation => true) # :compress => true, :optimize_objects => true
-  #   pdf.font_size(10)
-
-  #   # Footer
-  #   unless self.footer.blank?
-  #     pdf.repeat :all do
-  #       pdf.text_box self.class.beautify_for_pdf(self.footer), :size => 9, :align => :center, :color => "777777", :at => [mm2pt(10), mm2pt(10)], :inline_format => true
-  #     end
-  #   end
-
-  #   pdf.start_new_page
-
-  #   # Header
-  #   header = self.header
-  #   if header.file?
-  #     image = pdf.image(header.path(:web), :fit => [mm2pt(190), mm2pt(150)])
-  #     pdf.move_down(-image.height*0.25)
-  #   end
-  #   pdf.text self.title, :align => :right
-
-  #   # Introduction
-  #   unless self.introduction.blank?
-  #     pdf.move_down(10)
-  #     pdf.text self.class.beautify_for_pdf(self.introduction), :align => :justify, :inline_format => true
-  #   end
-
-  #   # Articles
-  #   for article in self.articles
-  #     pdf.move_down(10)
-  #     pdf.text self.class.beautify_for_pdf(article.title), :size => 13, :style => :bold, :inline_format => true
-  #     pdf.text self.class.beautify_for_pdf(article.content), :align => :justify, :inline_format => true
-  #   end
-
-  #   # Conclusion
-  #   unless self.conclusion.blank?
-  #     pdf.move_down(10)
-  #     pdf.text self.class.beautify_for_pdf(self.conclusion), :align => :justify, :inline_format => true
-  #   end
-
-
-
-
-  #   pdf.render_file file
-  #   return file
-  # end
-
-  def to_text
-    
   end
 
 end
