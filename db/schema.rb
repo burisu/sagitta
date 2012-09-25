@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120914090551) do
+ActiveRecord::Schema.define(:version => 20120925104458) do
 
   create_table "articles", :force => true do |t|
     t.integer "communication_id", :null => false
@@ -56,6 +56,7 @@ ActiveRecord::Schema.define(:version => 20120914090551) do
     t.text     "conclusion"
     t.integer  "newsletter_id"
     t.string   "title"
+    t.boolean  "with_pdf",           :default => false, :null => false
   end
 
   add_index "communications", ["client_id"], :name => "index_communications_on_client_id"
@@ -83,8 +84,8 @@ ActiveRecord::Schema.define(:version => 20120914090551) do
   add_index "newsletter_rubrics", ["newsletter_id"], :name => "index_newsletter_rubrics_on_newsletter_id"
 
   create_table "newsletters", :force => true do |t|
-    t.integer  "client_id",           :null => false
-    t.string   "name",                :null => false
+    t.integer  "client_id",                              :null => false
+    t.string   "name",                                   :null => false
     t.string   "ecofax_number"
     t.string   "ecofax_password"
     t.string   "header_file_name"
@@ -97,6 +98,7 @@ ActiveRecord::Schema.define(:version => 20120914090551) do
     t.text     "footer"
     t.text     "global_style"
     t.text     "print_style"
+    t.boolean  "with_pdf",            :default => false, :null => false
   end
 
   add_index "newsletters", ["client_id"], :name => "index_newsletters_on_client_id"

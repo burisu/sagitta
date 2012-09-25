@@ -1,33 +1,6 @@
 class Distributor < ActionMailer::Base
   add_template_helper(ApplicationHelper)
 
-  # def news(touchable, options = {})
-  #   @touchable = touchable
-  #   @communication = @touchable.communication
-  #   @message_url = message_url(@communication.key, :host => "agrimail.fr")
-  #   @unsubscribe_url = unsubscribe_url(@touchable.key, :host => "agrimail.fr")
-  #   attachments.inline[@communication.flyer.original_filename] = File.read(@communication.flyer.path(:web))
-  #   settings = {:to => @touchable.email, :from => @communication.from, :subject => @communication.subject}
-  #   settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
-  #   mail(settings)
-  # end
-
-
-  # def newsletter(touchable, options = {})
-  #   @touchable = touchable
-  #   @communication = @touchable.communication
-  #   @message_url = message_url(@communication.key, :host => "agrimail.fr")
-  #   @unsubscribe_url = unsubscribe_url(@touchable.key, :host => "agrimail.fr")
-  #   if @communication.flyer.file?
-  #     attachments.inline[@communication.flyer.original_filename] = File.read(@communication.flyer.path(:web))
-  #   end
-  #   if @communication.header.file?
-  #     attachments.inline['header-image.png'] = File.read(@communication.header.path(:web))
-  #   end
-  #   settings = {:to => @touchable.email, :from => @communication.from, :subject => @communication.subject}
-  #   settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
-  #   mail(settings)
-  # end
 
   def communication(touchable, options = {})
     @touchable = touchable
@@ -36,6 +9,9 @@ class Distributor < ActionMailer::Base
     @unsubscribe_url = unsubscribe_url(@touchable.key, :host => "agrimail.fr")
     if @communication.flyer.file?
       attachments.inline[@communication.flyer.original_filename] = File.read(@communication.flyer.path(:web))
+    end
+    if @communication.newsletter and @communication.with_pdf
+      attachments[@communication.subject.parameterize+".pdf"] = {:mime_type => 'application/pdf', :content =>  @communication.to_pdf}
     end
     if @communication.header.file?
       attachments.inline['header-image.png'] = File.read(@communication.header.path(:web))

@@ -34,7 +34,7 @@
 #
 
 class Communication < ActiveRecord::Base
-  attr_accessible :client_id, :name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message, :flyer, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :newsletter_id, :introduction, :conclusion, :title
+  attr_accessible :client_id, :name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message, :flyer, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :newsletter_id, :introduction, :conclusion, :title, :with_pdf
   belongs_to :client, :class_name => "User", :counter_cache => true
   belongs_to :newsletter
   has_attached_file :flyer, {

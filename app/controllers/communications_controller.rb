@@ -29,6 +29,7 @@ class CommunicationsController < AdminController
     @communication.newsletter = (current_user.administrator ? Newsletter : current_user.newsletters).find_by_id(params[:newsletter_id])
     @communication.client ||= @communication.newsletter.client
     if @communication.newsletter
+      @communication.with_pdf     = @communication.newsletter.with_pdf
       @communication.introduction = @communication.newsletter.introduction
       @communication.conclusion   = @communication.newsletter.conclusion
       if previous = @communication.newsletter.communications.order(:created_at).last
