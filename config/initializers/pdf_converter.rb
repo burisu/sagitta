@@ -5,5 +5,5 @@
 WickedPdf.config = {
   #:wkhtmltopdf => '/usr/local/bin/wkhtmltopdf',
   #:layout => "pdf.html",
-  :exe_path => `which wkhtmltopdf`.chomp
+  :exe_path => `cd \"#{Rails.root}\" && bundle exec which wkhtmltopdf`.chomp
 }
