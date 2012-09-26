@@ -2,8 +2,7 @@ class ArticlesController < AdminController
   
   def new
     @article = Article.new
-    communication = current_user.communications.find_by_id(params[:communication_id])
-    if communication
+    if communication = Communication.find_by_id(params[:communication_id])
       @article.communication = communication
       @article.newsletter = communication.newsletter
     end
@@ -16,7 +15,7 @@ class ArticlesController < AdminController
   
   def create
     @article = Article.new(params[:article])
-    @article.communication = current_user.communications.find_by_id(@article.communication_id) unless current_user.administrator?
+    @article.communication = Communication.find_by_id(@article.communication_id)
     respond_to do |format|
       if @article.save
         format.html { redirect_to (params[:redirect] || communication_url(@article.communication)) }
@@ -37,7 +36,7 @@ class ArticlesController < AdminController
   
   def update
     @article = Article.find(params[:id])
-    @article.communication = current_user.communications.find_by_id(@article.communication_id) unless current_user.administrator?
+    @article.communication = Communication.find_by_id(@article.communication_id)
     respond_to do |format|
       if @article.update_attributes(params[:article])
         format.html { redirect_to (params[:redirect] || communication_url(@article.communication)) }

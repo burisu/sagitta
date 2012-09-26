@@ -1,7 +1,7 @@
 class NewsletterRubricsController < AdminController
   
   def new
-    @newsletter_rubric = NewsletterRubric.new(:newsletter_id => (current_user.administrator ? params[:newsletter_id] : current_user.newsletters.find_by_id(params[:newsletter_id]).id))
+    @newsletter_rubric = NewsletterRubric.new(:newsletter_id => params[:newsletter_id])
     respond_to do |format|
       format.html { render_restfully_form(:multipart => true) }
       format.json { render :json => @newsletter_rubric }
@@ -11,7 +11,6 @@ class NewsletterRubricsController < AdminController
   
   def create
     @newsletter_rubric = NewsletterRubric.new(params[:newsletter_rubric])
-    @newsletter_rubric.newsletter = current_user.newsletters.find_by_id(@newsletter_rubric.newsletter_id) unless current_user.administrator?
     respond_to do |format|
       if @newsletter_rubric.save
         format.html { redirect_to (params[:redirect] || newsletter_url(@newsletter_rubric.newsletter)) }
@@ -32,7 +31,6 @@ class NewsletterRubricsController < AdminController
   
   def update
     @newsletter_rubric = NewsletterRubric.find(params[:id])
-    @newsletter_rubric.newsletter = current_user.newsletters.find_by_id(@newsletter_rubric.newsletter_id) unless current_user.administrator?
     respond_to do |format|
       if @newsletter_rubric.update_attributes(params[:newsletter_rubric])
         format.html { redirect_to (params[:redirect] || newsletter_url(@newsletter_rubric.newsletter)) }

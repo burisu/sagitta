@@ -26,7 +26,7 @@ class CommunicationsController < AdminController
   
   def new
     @communication = Communication.new(:client_id => params[:client_id])
-    @communication.newsletter = (current_user.administrator ? Newsletter : current_user.newsletters).find_by_id(params[:newsletter_id])
+    @communication.newsletter = Newsletter.find_by_id(params[:newsletter_id])
     @communication.client ||= @communication.newsletter.client
     if @communication.newsletter
       @communication.with_pdf     = @communication.newsletter.with_pdf
@@ -76,8 +76,10 @@ class CommunicationsController < AdminController
   
   def update
     @communication = Communication.find(params[:id])
-    @communication.client = current_user unless current_user.administrator?
-    @communication.newsletter = current_user.newsletters.find_by_id(@communication.newsletter_id)
+    unless current_user.administrator?
+      @communication.client = current_user
+      @communication.newsletter = current_user.newsletters.find_by_id(@communication.newsletter_id)
+    end
     respond_to do |format|
       if @communication.update_attributes(params[:communication])
         format.html { redirect_to (params[:redirect] || communication_url(@communication)) }

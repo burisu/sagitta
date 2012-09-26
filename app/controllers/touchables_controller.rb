@@ -37,7 +37,7 @@ class TouchablesController < AdminController
   
   def update
     @touchable = Touchable.find(params[:id])
-    @touchable.communication = current_user.communications.find_by_id(@touchable.communication_id) unless current_user.administrator?
+    @touchable.communication = Communication.find_by_id(@touchable.communication_id)
     respond_to do |format|
       if @touchable.update_attributes(params[:touchable])
         format.html { redirect_to (params[:redirect] || communication_url(@touchable.communication)) }
