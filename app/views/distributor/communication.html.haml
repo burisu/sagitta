@@ -23,6 +23,8 @@
                   .article{:class => "article-#{article.rubric_id}"}
                     %h2=beautify(article.title)
                     .content=beautify(article.content)
+                    -unless article.readmore_url.blank?
+                      .readmore=link_to(article.readmore_label+"...", article.readmore_url)
         %tr
           %td{:width => width, :height => 10}
         %tr

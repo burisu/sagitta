@@ -11,12 +11,12 @@ class Distributor < ActionMailer::Base
       attachments.inline[@communication.flyer.original_filename] = File.read(@communication.flyer.path(:web))
     end
     if @communication.newsletter and @communication.with_pdf
-      attachments[@communication.subject.parameterize+".pdf"] = @communication.to_pdf
+      attachments[@communication.interpolate(@communication.subject).parameterize+".pdf"] = @communication.to_pdf
     end
     if @communication.header.file?
       attachments.inline['header-image.png'] = File.read(@communication.header.path(:web))
     end
-    settings = {:to => @touchable.email, :from => @communication.from, :subject => @communication.subject}
+    settings = {:to => @touchable.email, :from => @communication.from, :subject => @communication.interpolate(@communication.subject)}
     settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
     mail(settings)
   end

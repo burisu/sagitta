@@ -219,53 +219,53 @@ class Communication < ActiveRecord::Base
     return html
   end
 
-  def self.beautify_for_pdf(text, options = {})
-    html = text.dup
-    for character, escape in {"&" => "&amp;", "<" => "&lt;", ">" => "&gt;", "'" => "’"}
-      html.gsub!(character, escape)
-    end
-    html.gsub!(/^\ \ [\*\-]\ +(.*)\ *$/, '<ul><li>\1</li></ul>')
-    html.gsub!(/\<\/ul\>\ *\n?\ *\<ul\>/, '')
-    # Stars
-    html.gsub!(/(^|[^\*])\*([^\*]|$)/, '\1∗\2')
-    # Emphase
-    html.gsub!(/([^\:])\/\/([^\s][^\/]+)\/\//, '\1<i>\2</i>')
-    # Strong
-    html.gsub!(/\*\*([^\s\*][^\*]*[^\s\*])\*\*/, '<b>\1</b>')
-    # URL
-    html.gsub!(/\[\[[^\|\]]+(\|[^\]]+)?\]\]/) do |link|
-      link = link[2..-3].strip.split("|")
-      url = link[0].strip
-      url = "http://"+url unless url.match(/^\w+\:\/\//)
-      label = link[1] || url
-      "<link href=\"#{url}\">#{label}</link>"
-    end
-    # Tables
-    classes = [:odd, :even]
-    c = nil
-    html.gsub!(/^\ *\|(.*)\|\ *\r?\n/) do |line|
-      cells = line.strip[1..-1].split(/\|/).collect do |data|
-        t, align = "td", "left"
-        if data[0..0] == "#"
-          t = "th" 
-          data = data[1..-1]
-        end
-        if data[0..1] == "  "
-          if data.size > 4 and data[-2..-1] == "  "
-            align = "center"
-          else
-            align = "right"
-          end
-        end
-        "<#{t} class=\"a-#{align}\">#{data.strip}</#{t}>"
-      end
-      c = classes[classes.index(c) ? (classes.index(c) + 1)  : 0] || classes[0]
-      "<table><tbody><tr class=\"#{c}\">" + cells.join + "</tr></tbody></table>"
-    end
-    html.gsub!(/\<\/tbody\><\/table\>\ *\n?\ *\<table\>\<tbody\>/, '')
+  # def self.beautify_for_pdf(text, options = {})
+  #   html = self.interpolate(text)
+  #   for character, escape in {"&" => "&amp;", "<" => "&lt;", ">" => "&gt;", "'" => "’"}
+  #     html.gsub!(character, escape)
+  #   end
+  #   html.gsub!(/^\ \ [\*\-]\ +(.*)\ *$/, '<ul><li>\1</li></ul>')
+  #   html.gsub!(/\<\/ul\>\ *\n?\ *\<ul\>/, '')
+  #   # Stars
+  #   html.gsub!(/(^|[^\*])\*([^\*]|$)/, '\1∗\2')
+  #   # Emphase
+  #   html.gsub!(/([^\:])\/\/([^\s][^\/]+)\/\//, '\1<i>\2</i>')
+  #   # Strong
+  #   html.gsub!(/\*\*([^\s\*][^\*]*[^\s\*])\*\*/, '<b>\1</b>')
+  #   # URL
+  #   html.gsub!(/\[\[[^\|\]]+(\|[^\]]+)?\]\]/) do |link|
+  #     link = link[2..-3].strip.split("|")
+  #     url = link[0].strip
+  #     url = "http://"+url unless url.match(/^\w+\:\/\//)
+  #     label = link[1] || url
+  #     "<link href=\"#{url}\">#{label}</link>"
+  #   end
+  #   # Tables
+  #   classes = [:odd, :even]
+  #   c = nil
+  #   html.gsub!(/^\ *\|(.*)\|\ *\r?\n/) do |line|
+  #     cells = line.strip[1..-1].split(/\|/).collect do |data|
+  #       t, align = "td", "left"
+  #       if data[0..0] == "#"
+  #         t = "th" 
+  #         data = data[1..-1]
+  #       end
+  #       if data[0..1] == "  "
+  #         if data.size > 4 and data[-2..-1] == "  "
+  #           align = "center"
+  #         else
+  #           align = "right"
+  #         end
+  #       end
+  #       "<#{t} class=\"a-#{align}\">#{data.strip}</#{t}>"
+  #     end
+  #     c = classes[classes.index(c) ? (classes.index(c) + 1)  : 0] || classes[0]
+  #     "<table><tbody><tr class=\"#{c}\">" + cells.join + "</tr></tbody></table>"
+  #   end
+  #   html.gsub!(/\<\/tbody\><\/table\>\ *\n?\ *\<table\>\<tbody\>/, '')
 
-    return html
-  end
+  #   return html
+  # end
 
 
 
@@ -306,6 +306,9 @@ class Communication < ActiveRecord::Base
         html << "<div class=\"article article-#{article.rubric_id}\">"
         html << "<h2>" + self.class.beautify_for_html(article.title) + "</h2>"
         html << "<div class=\"content\">" + self.class.beautify_for_html(article.content) + "</div>"
+        unless article.readmore_url.blank?
+          html << "<div class=\"readmore\">" + article.readmore_label+" : <a href=\""+URI.escape(article.readmore_url)+"\">" + URI.escape(article.readmore_url) + "</a></div>"
+        end
         html << "</div>" # /article
       end
       html << "</div>" # /articles
@@ -334,7 +337,7 @@ class Communication < ActiveRecord::Base
     html << "</div>" # /page
     html << "</body>"
     html << "</html>"
-    return html
+    return self.interpolate(html)
     
     # # Generate CSS
     # css = self.style
@@ -366,6 +369,14 @@ class Communication < ActiveRecord::Base
   def to_pdf
     # Wisepdf::Writer.new.to_pdf(self.to_html(:print))
     WickedPdf.new.pdf_from_string(self.to_html(:print))
+  end
+
+  def interpolate(text)
+    out = text.dup
+    out.gsub!('[NEWSLETTER]', self.newsletter.name)    
+    out.gsub!('[NAME]', self.name)
+    out.gsub!('[DATE]', self.planned_on.l)    
+    return out
   end
 
 end

@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
 module ApplicationHelper
 
+  def interpolate(text)
+    x = self.instance_variable_get("@communication")
+    return x.interpolate(text)
+  end
+
+
   # Convert enhanced text to html
   def beautify(text)
-    html = text.dup
+
+    html = interpolate(text)
+
     for character, escape in {"&" => "&amp;", "<" => "&lt;", ">" => "&gt;", "'" => "’"}
       html.gsub!(character, escape)
     end
@@ -58,7 +66,7 @@ module ApplicationHelper
 
   def textify(etext, options = {})
     coder = HTMLEntities.new
-    text = coder.decode(etext);
+    text = coder.decode(interpolate(etext));
     # List
     text.gsub!(/^\ \ [\*\-]\ +(.*)\ *$/, '  ‒ \1')
     # Emphase

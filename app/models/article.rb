@@ -27,4 +27,8 @@ class Article < ActiveRecord::Base
     end
   end
 
+  def readmore_label
+    "En savoir plus"
+  end
+
 end
