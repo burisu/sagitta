@@ -15,4 +15,5 @@
 //= require jquery_ujs
 //= require formize
 //= require active-list.jquery
+//= require bootstrap
 //= require_tree .
