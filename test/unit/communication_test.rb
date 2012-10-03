@@ -30,6 +30,8 @@
 #  introduction       :text
 #  conclusion         :text
 #  newsletter_id      :integer
+#  title              :string(255)
+#  with_pdf           :boolean          default(FALSE), not null
 #
 
 require 'test_helper'

@@ -11,21 +11,35 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120925104458) do
+ActiveRecord::Schema.define(:version => 20121003140908) do
 
   create_table "articles", :force => true do |t|
-    t.integer "communication_id", :null => false
-    t.integer "newsletter_id",    :null => false
-    t.integer "rubric_id"
-    t.integer "position"
-    t.string  "title"
-    t.text    "content"
-    t.string  "readmore_url"
+    t.integer  "communication_id",  :null => false
+    t.integer  "newsletter_id",     :null => false
+    t.integer  "rubric_id"
+    t.integer  "position"
+    t.string   "title"
+    t.text     "content"
+    t.string   "readmore_url"
+    t.string   "readmore_label"
+    t.string   "logo_file_name"
+    t.integer  "logo_file_size"
+    t.string   "logo_content_type"
+    t.datetime "logo_updated_at"
+    t.string   "logo_fingerprint"
   end
 
   add_index "articles", ["communication_id"], :name => "index_articles_on_communication_id"
   add_index "articles", ["newsletter_id"], :name => "index_articles_on_newsletter_id"
   add_index "articles", ["rubric_id"], :name => "index_articles_on_rubric_id"
+
+  create_table "articles_newsletter_rubrics", :id => false, :force => true do |t|
+    t.integer "article_id"
+    t.integer "newsletter_rubric_id"
+  end
+
+  add_index "articles_newsletter_rubrics", ["article_id"], :name => "index_articles_newsletter_rubrics_on_article_id"
+  add_index "articles_newsletter_rubrics", ["newsletter_rubric_id"], :name => "index_articles_newsletter_rubrics_on_newsletter_rubric_id"
 
   create_table "communications", :force => true do |t|
     t.integer  "client_id",                             :null => false

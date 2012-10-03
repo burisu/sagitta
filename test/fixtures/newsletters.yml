@@ -17,6 +17,7 @@
 #  footer              :text
 #  global_style        :text
 #  print_style         :text
+#  with_pdf            :boolean          default(FALSE), not null
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html

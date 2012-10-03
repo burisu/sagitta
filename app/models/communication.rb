@@ -31,6 +31,8 @@
 #  introduction       :text
 #  conclusion         :text
 #  newsletter_id      :integer
+#  title              :string(255)
+#  with_pdf           :boolean          default(FALSE), not null
 #
 
 class Communication < ActiveRecord::Base
@@ -304,6 +306,7 @@ class Communication < ActiveRecord::Base
       html << "<div id=\"articles\">"
       for article in self.articles
         html << "<div class=\"article article-#{article.rubric_id}\">"
+        html << "<img src=\"" + article.logo.path(:inch) + "\">" if article.logo.exists?
         html << "<h2>" + self.class.beautify_for_html(article.title) + "</h2>"
         html << "<div class=\"content\">" + self.class.beautify_for_html(article.content) + "</div>"
         unless article.readmore_url.blank?

@@ -30,6 +30,8 @@
 #  introduction       :text
 #  conclusion         :text
 #  newsletter_id      :integer
+#  title              :string(255)
+#  with_pdf           :boolean          default(FALSE), not null
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html

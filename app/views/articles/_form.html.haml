@@ -1,7 +1,16 @@
 %h1="Article pour #{@article.newsletter.name}"
 =simple_fields_for @article do |f|
+  =f.input :title, :input_html => {:class => "large"}
+  =f.input :content, :input_html => {:rows => @article.content.to_s.split(/\n/).inject(0){|sum, line| sum + (line.size/80) + 1 } + 1, :cols => 80}
+  -if @article.logo.file?
+    .pull-right
+      %span.thumbnail
+        =image_tag(@article.logo.url(:small)) 
+  =f.input :logo
+  -if @article.logo.file?
+    =f.input :remove_logo, :as => :boolean
   =f.association :communication, :as => :hidden
   =f.association :rubric, :collection => @article.newsletter.rubrics
-  =f.input :title
-  =f.input :content, :input_html => {:rows => @article.content.to_s.split(/\n/).inject(0){|sum, line| sum + (line.size/80) + 1 } + 1, :cols => 80}
+  =f.association :rubrics, :collection => @article.newsletter.rubrics, :as => :check_boxes
+  =f.input :readmore_label
   =f.input :readmore_url, :input_html => {:rows => 2, :cols => 80}

@@ -27,9 +27,11 @@ $fs-small: round($fs-normal / $font-size-coeff);
 $fs-large: round($fs-normal * $font-size-coeff);
 $fs-huge:  round($fs-large  * $font-size-coeff);
 
-$sansFontFamily: 'Open Sans', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+/*$sansFontFamily: 'Open Sans', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;*/
 
 @import "bootstrap";
+
+.btn-toolbar { @include inline-block; }
 
 /*
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video { 
@@ -48,11 +50,29 @@ html {
   }
 }
 
-a { 
-  color: $base-color;
-  .active-list & { 
-    color: $base-color;
+.newsletter { 
+  margin: $fs-normal;
+  padding: $fs-normal;
+  @include box-shadow(0 0 $fs-normal rgba(#000, 0.2));
+  .nl-header { width: 100%; height: auto; }
+  .introduction, .articles, .conclusion, .footer { 
+    margin-top: $fs-normal;
   }
+  .footer { text-align: center; }
+  table { 
+    @extend .table;
+    @extend .table-bordered;
+    @extend .table-striped;
+  }
+}
+
+input.large { 
+  font-size: $fs-large;
+  $height: round($fs-large * 1.4);
+  line-height: $height;             
+  height: $height;
+  width: 100%;
+  font-weight: bold;
 }
 
 #page { 
@@ -173,15 +193,13 @@ pre {
 
 
 textarea { 
-  width: 750px;
-  max-width: 750px;
-  min-width: 750px;
+  width: 100%;
   resize: vertical;
+  font-family: monospace;
 }
 
 
 table.details { 
   width: 100%;
-  .label {  color: #999; }
   td { padding: 3px; }
 }

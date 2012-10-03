@@ -5,25 +5,25 @@
 -title = title.html_safe
 -content_for(:title, title)
 %h1=title
-.toolbar
-  =link_to("Retour", user_url(@communication.client))
-  =link_to("Modifier", edit_communication_url(@communication))
+=toolbar do
+  =tool("Retour", user_url(@communication.client))
+  =tool("Modifier", edit_communication_url(@communication))
   -unless @communication.distributed?
-    =link_to("Importer les cibles", populate_communication_url(@communication))    
-    =link_to("Supprimer les cibles", clear_communication_url(@communication), :method => :delete, "data-confirm" => "Sûr ?")
+    =tool("Importer les cibles", populate_communication_url(@communication))    
+    =tool("Supprimer les cibles", clear_communication_url(@communication), :method => :delete, "data-confirm" => "Sûr ?")
   -unless @communication.newsletter
-    =link_to("Voir la page", message_url(@communication.key), :target => "_blank")
-  =link_to("Voir le PDF", communication_url(@communication, :format => :pdf))
-.toolbar
+    =tool("Voir la page", message_url(@communication.key), :target => "_blank")
+  =tool("Voir le PDF", communication_url(@communication, :format => :pdf))
+=toolbar do
   -if @communication.testables.count > 0
-    =link_to("Test e-mail", distribute_communication_url(@communication, :only => :email), :method => :post)
-    =link_to("Test fax", distribute_communication_url(@communication, :only => :fax), :method => :post)
-    =link_to("Test complet", distribute_communication_url(@communication), :method => :post)
+    =tool("Test e-mail", distribute_communication_url(@communication, :only => :email), :method => :post)
+    =tool("Test fax", distribute_communication_url(@communication, :only => :fax), :method => :post)
+    =tool("Test complet", distribute_communication_url(@communication), :method => :post)
   -if @communication.distributable?
-    -#=link_to("Effectuer l'envoi pour les non-envoyés", distribute_communication_url(@communication, :mode => "unsent"), :method => :post, "data-confirm" => "Sûr(e) ?")
-    =link_to("Envoi e-mail", distribute_communication_url(@communication, :mode => "real", :only => :email), :method => :post, "data-confirm" => "Sûr(e) ?")
-    =link_to("Envoi fax", distribute_communication_url(@communication, :mode => "real", :only => :fax), :method => :post, "data-confirm" => "Sûr(e) ?")
-    =link_to("Envoi complet", distribute_communication_url(@communication, :mode => "real"), :method => :post, "data-confirm" => "Sûr(e) ?")
+    -#=tool("Effectuer l'envoi pour les non-envoyés", distribute_communication_url(@communication, :mode => "unsent"), :method => :post, "data-confirm" => "Sûr(e) ?")
+    =tool("Envoi e-mail", distribute_communication_url(@communication, :mode => "real", :only => :email), :method => :post, "data-confirm" => "Sûr(e) ?")
+    =tool("Envoi fax", distribute_communication_url(@communication, :mode => "real", :only => :fax), :method => :post, "data-confirm" => "Sûr(e) ?")
+    =tool("Envoi complet", distribute_communication_url(@communication, :mode => "real"), :method => :post, "data-confirm" => "Sûr(e) ?")
 
 
 -if @communication.newsletter
@@ -31,9 +31,16 @@
     Newsletter
     -if current_user.administrator
       =link_to(@communication.newsletter.name, edit_newsletter_url(@communication.newsletter))
-  .toolbar
-    =link_to("Ajouter un article", new_article_url(:communication_id => @communication.id))
-  =render :partial => "articles/article", :collection => @communication.articles
+    =toolbar do
+      =tool("Ajouter un article", new_article_url(:communication_id => @communication.id), :icon => "plus")
+  .newsletter
+    -if @communication.header.file?
+      =image_tag(@communication.header.url(:web), :class => "nl-header")
+    %h1=@communication.interpolate(@communication.title)
+    .introduction=beautify(@communication.introduction)
+    .articles=render :partial => "articles/article", :collection => @communication.articles
+    .conclusion=beautify(@communication.conclusion)
+    .footer=beautify(@communication.footer)
 -else
   %h2 Flyer
   =image_tag(@communication.flyer.url(:web))
@@ -48,7 +55,7 @@
 %table.details
   -for x in fields
     %tr.field.input
-      %td.label=Communication.human_attribute_name(x)
+      %td.less=Communication.human_attribute_name(x)
       %td.span=beautify(@communication.send(x).to_s)
 
 

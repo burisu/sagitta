@@ -96,4 +96,28 @@ module ApplicationHelper
   end
 
 
+  def toolbar(&block)
+    return content_tag(:div, content_tag(:div, capture(&block), :class => "btn-group"), :class => "btn-toolbar")
+  end
+
+  INTERPOLATE = {
+    "destroy" => "remove",
+    "delete" => "remove"
+  }
+
+  def tool(*args)
+    args[2] ||= {}
+    args[2][:class] ||= ""
+    args[2][:class] << "btn"
+    if args[2][:icon]
+      icon = args[2].delete(:icon).to_s
+      icon.gsub!(/\_/, '-')
+      icon = INTERPOLATE[icon] || icon
+      args[2][:title] = args[0]
+      args[0] = content_tag(:i, nil, :class => "icon-"+icon) #  + h(args[0])
+    end
+    link_to(*args)
+  end
+  
+
 end

@@ -1,9 +1,17 @@
-%h2=Communication.beautify_for_html(article.title).html_safe
+%h2
+  -if article.logo.file?
+    .pull-left
+      %span.thumbnail=image_tag(article.logo.url(:web))
+  =Communication.beautify_for_html(article.title).html_safe
+  =toolbar do
+    =tool("Éditer", edit_article_url(article), :icon => :edit)
+    =tool("Supprimer", article_url(article), :method => "delete", :confirm => "Sure ?", :icon => :destroy)
+    =tool("Monter", up_article_url(article), :method => :post, :icon => :chevron_up)
+    =tool("Descendre", down_article_url(article), :method => :post, :icon => :chevron_down)
+
+-for rubric in article.rubrics
+  %span.label.label-info=rubric.name
+
 .content=Communication.beautify_for_html(article.content).html_safe
 -unless article.readmore_url.blank?
-  .readmore=link_to("Lire la suite...", article.readmore_url)
-.toolbar
-  =link_to("Éditer", edit_article_url(article))
-  =link_to("Supprimer", article_url(article), :method => "delete", :confirm => "Sure ?")
-  =link_to("Monter", up_article_url(article), :method => :post)
-  =link_to("Descendre", down_article_url(article), :method => :post)
+  .readmore=link_to(article.readmore_label, article.readmore_url)

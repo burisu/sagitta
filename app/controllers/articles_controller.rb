@@ -1,7 +1,7 @@
 class ArticlesController < AdminController
   
   def new
-    @article = Article.new
+    @article = Article.new(:readmore_label => "En savoir plus")
     if communication = Communication.find_by_id(params[:communication_id])
       @article.communication = communication
       @article.newsletter = communication.newsletter
