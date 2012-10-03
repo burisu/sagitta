@@ -86,9 +86,9 @@ module ApplicationHelper
 
     text = word_wrap(text, :line_width => 100)
 
-    maxl = text.split(/\n/).collect{|l| l.strip.size}.max
+    maxl = text.split(/\n/).collect{|l| l.strip.size}.max || 100
     if options[:mode] == :h1
-      text = "="*maxl+"\n"+text.strip+"\n"+"="*maxl
+      text = "=" * maxl+"\n"+text.strip+"\n"+"=" * maxl
     elsif options[:mode] == :h2
       text = text.strip+"\n"+"-"*maxl
     end

@@ -1,13 +1,18 @@
 %h2
+  .pull-right
+    =toolbar do
+      =tool("Éditer", edit_article_url(article), :icon => :edit)
+      =tool("Supprimer", article_url(article), :method => "delete", :confirm => "Sure ?", :icon => :destroy)
+      =tool("Ajouter une pièce", new_piece_url(:article_id => article.id), :icon => "file")
+      =tool("Monter", up_article_url(article), :method => :post, :icon => :chevron_up)
+      =tool("Descendre", down_article_url(article), :method => :post, :icon => :chevron_down)
   -if article.logo.file?
     .pull-left
       %span.thumbnail=image_tag(article.logo.url(:web))
   =Communication.beautify_for_html(article.title).html_safe
-  =toolbar do
-    =tool("Éditer", edit_article_url(article), :icon => :edit)
-    =tool("Supprimer", article_url(article), :method => "delete", :confirm => "Sure ?", :icon => :destroy)
-    =tool("Monter", up_article_url(article), :method => :post, :icon => :chevron_up)
-    =tool("Descendre", down_article_url(article), :method => :post, :icon => :chevron_down)
+
+.pull-right
+  =render :partial => "pieces/piece", :collection =>article.pieces
 
 -for rubric in article.rubrics
   %span.label.label-info=rubric.name
@@ -15,3 +20,4 @@
 .content=Communication.beautify_for_html(article.content).html_safe
 -unless article.readmore_url.blank?
   .readmore=link_to(article.readmore_label, article.readmore_url)
+

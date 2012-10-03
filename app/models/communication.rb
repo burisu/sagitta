@@ -39,15 +39,17 @@ class Communication < ActiveRecord::Base
   attr_accessible :client_id, :name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message, :flyer, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :newsletter_id, :introduction, :conclusion, :title, :with_pdf
   belongs_to :client, :class_name => "User", :counter_cache => true
   belongs_to :newsletter
+  has_many :articles, :dependent => :delete_all, :order => :position
+  has_many :effects, :dependent => :delete_all
+  has_many :pieces, :dependent => :destroy
+  has_many :alone_pieces, :class_name => "Piece", :conditions => "article_id IS NULL"
+  has_many :touchables, :dependent => :delete_all, :order => :email
+  has_many :testables, :class_name => "Touchable", :dependent => :delete_all, :order => :email, :conditions => {:test => true}
   has_attached_file :flyer, {
     :styles => { :web => "640x2000>", :medium => "96x96#", :thumb => "48x48#" },
     :path => ":rails_root/public/system/:class/:attachment/:id_partition/:style/:filename",
     :url => "/system/:class/:attachment/:id_partition/:style/:filename"
   }
-  has_many :articles, :dependent => :delete_all, :order => :position
-  has_many :effects, :dependent => :delete_all
-  has_many :touchables, :dependent => :delete_all, :order => :email
-  has_many :testables, :class_name => "Touchable", :dependent => :delete_all, :order => :email, :conditions => {:test => true}
 
   delegate :global_style, :print_style, :header, :footer, :to => :newsletter
 
@@ -144,7 +146,7 @@ class Communication < ActiveRecord::Base
       end
     end
     if media == :print
-      style << self.print_style
+      style << self.print_style.to_s
       for rubric in self.newsletter.rubrics
         unless rubric.article_print_style.blank?
           style << "\n.article.article-#{rubric.id} {\n" + rubric.article_print_style + "\n}\n"
@@ -375,7 +377,7 @@ class Communication < ActiveRecord::Base
   end
 
   def interpolate(text)
-    out = text.dup
+    out = text.to_s.dup
     out.gsub!('[NEWSLETTER]', self.newsletter.name)    
     out.gsub!('[NAME]', self.name)
     out.gsub!('[DATE]', self.planned_on.l)    

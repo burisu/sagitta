@@ -42,7 +42,7 @@ end
 gem 'jquery-rails'
 
 group :development do
-  gem "letter_opener"
+  # gem "letter_opener"
   gem "annotate" #, :git => "https://github.com/ctran/annotate_models.git"
   gem 'rack-mini-profiler'
 end

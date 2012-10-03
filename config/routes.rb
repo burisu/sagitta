@@ -8,6 +8,7 @@ Sagitta::Application.routes.draw do
       end
     end
     resources :newsletter_rubrics, :path => "newsletter-rubrics"
+    resources :pieces
     resources :articles do
       member do
         post :up

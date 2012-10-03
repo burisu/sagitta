@@ -24,6 +24,7 @@ class Article < ActiveRecord::Base
   belongs_to :newsletter
   belongs_to :rubric, :class_name => "NewsletterRubric"
   has_and_belongs_to_many :rubrics, :class_name => "NewsletterRubric"
+  has_many :pieces
   has_attached_file :logo, {
     :styles => { :inch => ["300x300>", :jpg], :web => ["128x128>", :jpg], :small => "96x96>", :thumb => "48x48" },
     :convert_options => { :inch => '-background white', :web => '-background white'}, #  -flatten +matte

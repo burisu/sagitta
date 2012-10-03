@@ -28,11 +28,13 @@
 
 -if @communication.newsletter
   %h2 
+    .pull-right
+      =toolbar do
+        =tool("Ajouter un article", new_article_url(:communication_id => @communication.id), :icon => "plus")
+        =tool("Ajouter une pièce", new_piece_url(:communication_id => @communication.id), :icon => "file")
     Newsletter
     -if current_user.administrator
       =link_to(@communication.newsletter.name, edit_newsletter_url(@communication.newsletter))
-    =toolbar do
-      =tool("Ajouter un article", new_article_url(:communication_id => @communication.id), :icon => "plus")
   .newsletter
     -if @communication.header.file?
       =image_tag(@communication.header.url(:web), :class => "nl-header")
@@ -41,6 +43,8 @@
     .articles=render :partial => "articles/article", :collection => @communication.articles
     .conclusion=beautify(@communication.conclusion)
     .footer=beautify(@communication.footer)
+    =render :partial => "pieces/piece", :collection => @communication.alone_pieces
+
 -else
   %h2 Flyer
   =image_tag(@communication.flyer.url(:web))

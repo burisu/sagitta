@@ -14,7 +14,7 @@ Sagitta::Application.configure do
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send
-  config.action_mailer.raise_delivery_errors = false # true
+  config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_deliveries = true
   ActionMailer::Base.smtp_settings = { :openssl_verify_mode  => 'none' }  
   config.action_mailer.delivery_method = :smtp # :letter_opener

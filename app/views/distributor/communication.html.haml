@@ -17,10 +17,12 @@
           %td{:width => width}
             -unless @communication.introduction.blank?
               #introduction=beautify(@communication.introduction)
-            -if @communication.articles.size > 0
+            -if @communication.articles.count > 0
               #articles
                 -for article in @communication.articles
                   .article{:class => "article-#{article.rubric_id}"}
+                    -if @articles[article.id]
+                      =image_tag(attachments[@articles[article.id]].url)
                     %h2=beautify(article.title)
                     .content=beautify(article.content)
                     -unless article.readmore_url.blank?

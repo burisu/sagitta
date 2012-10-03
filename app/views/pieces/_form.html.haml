@@ -1,0 +1,6 @@
+%h1="Pièce jointe pour #{@piece.communication.newsletter.name}"
+=simple_fields_for @piece do |f|
+  =f.input :name, :input_html => {:class => "large"}
+  =f.input :document
+  =f.association :communication, :as => :hidden
+  =f.association :article, :as => :hidden

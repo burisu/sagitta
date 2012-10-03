@@ -1,0 +1,9 @@
+.btn-group
+  %a.btn.btn-mini.btn-primary{:href => piece_url(piece)}
+    %span.icon-file.icon-white
+    =piece.name
+  %button.btn.btn-mini.btn-primary.dropdown-toggle{"data-toggle" => "dropdown"}
+    %span.caret
+  %ul.dropdown-menu
+    %li=link_to("Modifier", edit_piece_url(piece.id))
+    %li=link_to("Supprimer", piece_url(piece.id), "data-confirm" => "OK ?", :method => :delete)
