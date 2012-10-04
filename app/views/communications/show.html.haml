@@ -9,11 +9,12 @@
   =tool("Retour", user_url(@communication.client))
   =tool("Modifier", edit_communication_url(@communication))
   -unless @communication.distributed?
-    =tool("Importer les cibles", populate_communication_url(@communication))    
-    =tool("Supprimer les cibles", clear_communication_url(@communication), :method => :delete, "data-confirm" => "Sûr ?")
+    =tool("Importer les cibles", populate_communication_url(@communication))
+    -if @communication.touchables.count > 0
+      =tool("Supprimer les cibles", clear_communication_url(@communication), :method => :delete, "data-confirm" => "Sûr ?")
   -unless @communication.newsletter
-    =tool("Voir la page", message_url(@communication.key), :target => "_blank")
-  =tool("Voir le PDF", communication_url(@communication, :format => :pdf))
+    =tool("HTML", message_url(@communication.key), :target => "_blank")
+  =tool("PDF", communication_url(@communication, :format => :pdf))
 =toolbar do
   -if @communication.testables.count > 0
     =tool("Test e-mail", distribute_communication_url(@communication, :only => :email), :method => :post)
@@ -47,7 +48,7 @@
 
 -else
   %h2 Flyer
-  =image_tag(@communication.flyer.url(:web))
+  .flyer=image_tag(@communication.flyer.url(:web))
 
 
 %h2 Détails

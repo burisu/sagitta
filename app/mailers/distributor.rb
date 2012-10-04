@@ -15,16 +15,16 @@ class Distributor < ActionMailer::Base
       @articles = {}
       for article in @communication.articles
         if article.logo.file?
-          path = article.logo.path(:web)
-          @articles[article.id] = File.basename(path)
-          attachments.inline[@articles[article.id]] = File.read(path)
+          @articles[article.id] = unique_image_name
+          attachments.inline[@articles[article.id]] = File.read(article.logo.path(:web))
         end
       end
       for piece in @communication.pieces
         attachments[piece.name.parameterize+".pdf"] = File.read(piece.document.path(:original))
       end
       if @communication.header.file?
-        attachments.inline['header-image.png'] = File.read(@communication.header.path(:web))
+        @header = unique_image_name
+        attachments.inline[@header] = File.read(@communication.header.path(:web))
       end
     else
       if @communication.flyer.file?
@@ -54,5 +54,10 @@ class Distributor < ActionMailer::Base
   end
 
 
+  private
+
+  def unique_image_name(extension = :jpg)
+    return rand.to_s[2..-1].to_i.to_s(36)+Time.now.to_i.to_s(36)+"."+extension.to_s
+  end
 
 end

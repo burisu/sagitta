@@ -53,6 +53,13 @@ html {
   }
 }
 
+.flyer { 
+  margin: $fs-normal auto;
+  padding: $fs-normal;
+  width: 640px;
+  @include box-shadow(0 0 $fs-normal rgba(#000, 0.2));
+}
+
 .newsletter { 
   margin: $fs-normal auto;
   padding: $fs-normal;

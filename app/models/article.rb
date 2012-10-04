@@ -27,7 +27,7 @@ class Article < ActiveRecord::Base
   has_many :pieces
   has_attached_file :logo, {
     :styles => { :inch => ["300x300>", :jpg], :web => ["128x128>", :jpg], :small => "96x96>", :thumb => "48x48" },
-    :convert_options => { :inch => '-background white', :web => '-background white'}, #  -flatten +matte
+    :convert_options => { :inch => ' -quality 85 -background white -flatten +matte ', :web => ' -quality 85 -background white -flatten +matte '}, #  -flatten +matte
     :path => ":rails_root/public/system/:class/:attachment/:id_partition/:style/:filename",
     :url => "/system/:class/:attachment/:id_partition/:style/:filename"
   }

@@ -3,9 +3,9 @@
   =title
 %h1=title
 =simple_fields_for @communication do |f|
+  =f.input :name, :input_html => {:class => "large"}
   -if current_user.administrator?
     =f.association :client
-  =f.input :name
   =f.input :planned_on
   =f.input :subject
   =f.input :sender_email

@@ -138,34 +138,39 @@ class Communication < ActiveRecord::Base
   def style(media = :screen, options = {})
     style = ""
     # Global style
-    style << self.global_style
-    # Rubric styles
-    for rubric in self.newsletter.rubrics
-      unless rubric.article_style.blank?
-        style << "\n.article.article-#{rubric.id} {\n" + rubric.article_style + "\n}\n"
-      end
-    end
-    if media == :print
-      style << self.print_style.to_s
+    if self.newsletter
+      style << self.global_style
+      # Rubric styles
       for rubric in self.newsletter.rubrics
-        unless rubric.article_print_style.blank?
-          style << "\n.article.article-#{rubric.id} {\n" + rubric.article_print_style + "\n}\n"
+        unless rubric.article_style.blank?
+          style << "\n.article.article-#{rubric.id} {\n" + rubric.article_style + "\n}\n"
         end
       end
-    end
-
-    # Interpolations
-    if self.newsletter.header.file?
-      header = self.newsletter.header
-      geo = Paperclip::Geometry.from_file(header.path(:web))
-      # style.gsub!('header-image', "url(\"#{header.url(:web)}\")")
-      File.open(header.path(:web), "rb") do |file|
-        style.gsub!('header-image', "url(data:image/jpg;base64,#{::Base64.encode64(file.read).to_s.gsub(/\s/, '')})")
+      if media == :print
+        style << self.print_style.to_s
+        for rubric in self.newsletter.rubrics
+          unless rubric.article_print_style.blank?
+            style << "\n.article.article-#{rubric.id} {\n" + rubric.article_print_style + "\n}\n"
+          end
+        end
       end
-      style.gsub!('header-path', header.path(:web))
-      style.gsub!('header-url', options[:header_url] || header.url(:web))
-      style.gsub!('header-height', "#{geo.height}px")
-      style.gsub!('header-width', "#{geo.width}px")
+
+      # Interpolations
+      if self.newsletter.header.file?
+        header = self.newsletter.header
+        geo = Paperclip::Geometry.from_file(header.path(:web))
+        # style.gsub!('header-image', "url(\"#{header.url(:web)}\")")
+        File.open(header.path(:web), "rb") do |file|
+        style.gsub!('header-image', "url(data:image/jpg;base64,#{::Base64.encode64(file.read).to_s.gsub(/\s/, '')})")
+        end
+        style.gsub!('header-path', header.path(:web))
+        style.gsub!('header-url', options[:header_url] || header.url(:web))
+        style.gsub!('header-height', "#{geo.height}px")
+        style.gsub!('header-width', "#{geo.width}px")
+      end
+    else
+      style << "a { display: block; text-align:center; margin: 0 auto; } "
+      style << "a img { max-height: 260mm; width: auto; margin: 0 auto; } "
     end
     # raise style
     engine = Sass::Engine.new(style, :syntax => :scss, :style => :compressed)
@@ -282,7 +287,7 @@ class Communication < ActiveRecord::Base
     html << "<meta charset=\"UTF-8\" />"
     html << "<title>" + self.subject + "</title>"
     html << "<style>" + self.style(media) + "</style>"
-# '@import url("http://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic");'
+    # '@import url("http://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,700italic");'
 
     html << "</head>"
     html << "<body>"
@@ -332,9 +337,9 @@ class Communication < ActiveRecord::Base
         html << "</div>" # /footer
       end
     else
-      html << "<a href='#{@communication.target_url}'>"
+      html << "<a href='#{self.target_url}'>"
       if media == :print and self.flyer.file?
-        html << "<img src='#{self.flyer.path(:web)}'/>"
+        html << "<img src='#{self.flyer.path(:original)}'/>"
       end
       html << "</a>"
     end
@@ -372,13 +377,12 @@ class Communication < ActiveRecord::Base
   end
 
   def to_pdf
-    # Wisepdf::Writer.new.to_pdf(self.to_html(:print))
     WickedPdf.new.pdf_from_string(self.to_html(:print))
   end
 
   def interpolate(text)
     out = text.to_s.dup
-    out.gsub!('[NEWSLETTER]', self.newsletter.name)    
+    out.gsub!('[NEWSLETTER]', self.newsletter.name) if self.newsletter
     out.gsub!('[NAME]', self.name)
     out.gsub!('[DATE]', self.planned_on.l)    
     return out
