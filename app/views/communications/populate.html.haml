@@ -1,20 +1,29 @@
--test_text = "Pour les tests avant tout"
-%h1 Importer des e-mails
-=form_tag({}, :multipart => true) do
-  %fieldset 
-    %legend Importer un fichier d'e-mails
-    =file_field_tag("touchables_file")
-    .input
-      %label{:for => "test-file"}=test_text
-      =check_box_tag("test", "1", params[:test], :id => "test-file")
-    .actions=submit_tag("Importer")
-
-=form_tag do
-  %fieldset 
-    %legend Saisir une liste d'e-mails
-    =text_area_tag("touchables_list", params[:touchables_list], :rows => 10, :cols => 80)
-    .input
-      %label{:for => "test-list"}=test_text
-      =check_box_tag("test", "1", params[:test], :id => "test-list")
-    .actions=submit_tag("Importer")
+-page_title("Importer des cibles pour #{@communication.name}")
+-desc do
+  Le format utilisé est un format dédié basé sur CSV : Trois colonnes adresse e-mail, numéro de fax et adresse postale.
+  L'adresse doit être dans une seule case, chaque ligne de l'adresse étant séparée par des points virgules.
+  Toutes les colonnes sont facultatives.
+  Une seule coordonnée sur les 3 est retenue pour chaque cible en fonction d'un ordre de priorité. 
+  =h("L'ordre actuel est : ") + @communication.client.canals_priority_array.collect{|x| content_tag(:strong, x)}.to_sentence.html_safe + h(".")
+  
+=form_tag({}, :class => "form-horizontal", :multipart => true) do
+  .control-group
+    %label.control-label{:for => "import_file"}="Importer un fichier"
+    .controls=check_box_tag("import_file", "1", params[:import_file], :id => "import_file", "data-show"=>"#imp-file", "data-hide"=>"#imp-list")
+  #imp-file.control-group
+    %label.control-label{:for => "touchables_file"}="Fichier"
+    .controls=file_field_tag("touchables_file")
+  #imp-list.control-group
+    %label.control-label{:for => "touchables_list"}="Liste (saisie directe)"
+    .controls=text_area_tag("touchables_list", params[:touchables_list], :rows => 10, :placeholder => "alain.dupont@gmail.com,,Alain DUPONT;17 rue de la République;33000 BORDEAUX")
+  .control-group
+    %label.control-label{:for => "header"}="Ne pas prendre en compte la première ligne"
+    .controls
+      %label.checkbox=check_box_tag("header", "1", params[:header], :id => "header")
+  .control-group
+    %label.control-label{:for => "test"}="Pour les tests avant tout"
+    .controls
+      %label.checkbox=check_box_tag("test", "1", params[:test], :id => "test")
+  .form-actions
+    =button_tag("Importer", :class => :btn)
 

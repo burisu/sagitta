@@ -1,7 +1,4 @@
--title=(@communication.newsletter ? "Nouveau &laquo;&nbsp;#{@communication.newsletter.name}&nbsp;&raquo;".html_safe : "Nouveau flyer")
--content_for :title do
-  =title
-%h1=title
+-page_title(@communication.newsletter ? "Nouveau &laquo;&nbsp;#{@communication.newsletter.name}&nbsp;&raquo;".html_safe : "Nouveau flyer")
 =simple_fields_for @communication do |f|
   =f.input :name, :input_html => {:class => "large"}
   -if current_user.administrator?

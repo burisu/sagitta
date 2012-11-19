@@ -5,8 +5,8 @@ class CommunicationsController < AdminController
   end
 
   list :touchables, :conditions => ["communication_id = ? ", ['session[:communication_id]']] do |t|
-    t.column :email
-    t.column :fax
+    t.column :canal
+    t.column :coordinate
     t.column :test
     t.action :edit
     t.action :destroy
@@ -100,27 +100,44 @@ class CommunicationsController < AdminController
     end
   end
 
+
+  def duplicate
+    @communication = Communication.find(params[:id])
+    comm = @communication.duplicate!
+    redirect_to edit_communication_url(comm)
+  end
+
   def populate
     @communication = Communication.find(params[:id])
     if request.post?
       source = ""
-      if params[:touchables_file]
+      if params[:import_file].to_i > 0
         name = params[:touchables_file].original_filename
         path = Rails.root.join("tmp", "codes-import.#{name}.#{rand.to_s[2..16].to_i.to_s(36)}.csv")
         File.open(path, "wb") { |f| f.write(params[:touchables_file].read) }
         File.open(path, "rb") { |f| source = f.read }
-        File.delete(path)
-      elsif params[:touchables_list]
-        source = params[:touchables_list].to_s
+        File.delete(path)        
       else
-        raise Exception.new("Unvalid import method")
+        source = params[:touchables_list].to_s        
       end
       clist = source.to_s.split(/\"*\s*\n+\s*\"*/).compact.collect{|x| x.to_s.mb_chars.downcase}.uniq.collect do |line|
-        line.split(/\s*[\,\;\"]+\s*/)[0..1]
+        x = line.split(/\,/)
+        x[2] ||= nil
+        {"email" => x[0], "fax" => x[1], "mail" => x[2..-1].join(',')}
       end.uniq
-      for infos in clist
-        @communication.touchables.create(:email => infos[0], :fax => infos[1], :test => (params[:test].to_i == 1))
-      end
+      clist.delete_at(0) if params[:header]
+      test_purpose = (params[:test].to_i == 1 ? true : false)
+      code  = "for infos in clist\n"
+      code << "  canal = (" + @communication.client.canals_priority_array.collect do |canal| 
+        "!infos['#{canal}'].blank? ? '#{canal}'"
+      end.join(" : ") + " : nil)\n"
+      code << "  @communication.touchables.create(:canal => canal, :coordinate => infos[canal], :test => test_purpose) unless canal.nil?\n"
+      code << "end\n"
+      eval(code)
+      # for infos in clist
+      #   canal = (!infos[p1].blank? ? infos[p1] : !infos[p2].blank? ? infos[p2] : infos[p3])
+      #   @communication.touchables.create!(:canal => canal, :coordinate => infos[canal], :test => test_purpose)
+      # end
       redirect_to communication_url(@communication)
     end
   end
@@ -144,7 +161,8 @@ class CommunicationsController < AdminController
     unless params[:only].blank?
       settings[:only] = params[:only].to_sym
     end
-    @report = @communication.distribute(settings)
+    @report = @communication.delay.distribute(settings)
+    redirect_to communication_url(@communication)
   end
 
 end

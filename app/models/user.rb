@@ -27,6 +27,7 @@
 #  communications_count   :integer          default(0), not null
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
+#  costs                  :string(255)
 #
 
 class User < ActiveRecord::Base
@@ -37,7 +38,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable
 
   # Setup accessible (or protected) attributes for your model
-  attr_accessible :email, :password, :password_confirmation, :remember_me, :full_name, :administrator
+  attr_accessible :email, :password, :password_confirmation, :remember_me, :full_name, :administrator, :costs, :canals_priority
   
   has_many :communications, :foreign_key => :client_id, :dependent => :delete_all
   has_many :newsletters, :foreign_key => :client_id, :dependent => :delete_all
@@ -46,4 +47,18 @@ class User < ActiveRecord::Base
   def name
     self.full_name
   end
+
+  def costs_hash
+    return self.costs.to_s.split(/\s*\n\s*/).collect{|l| l.split("=")}.inject({}) do |hash, pair|
+      hash[pair[0].strip.downcase.to_s] = pair[1].strip.to_d
+      hash
+    end
+  end
+
+  def canals_priority_array
+    array = self.canals_priority.to_s.strip.split(/\s*\,\s*/).collect{|x| x.strip.downcase}.delete_if{|x| !Touchable.canals.include?(x)}
+    array = Touchable.canals if array.empty?
+    return array
+  end
+
 end

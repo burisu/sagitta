@@ -216,7 +216,7 @@ textarea {
 }
 
 
-table.details { 
-  width: 100%;
-  td { padding: 3px; }
+table { 
+  .dec { text-align: right; }
 }
+

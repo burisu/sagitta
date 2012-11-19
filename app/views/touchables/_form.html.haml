@@ -1,4 +1,4 @@
 =simple_fields_for @touchable do |f|
-  =f.input :email
-  =f.input :fax
+  =f.input :canal, :collection => Touchable.canals
+  =f.input :coordinate
   =f.input :test

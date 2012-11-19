@@ -43,7 +43,7 @@ class Communication < ActiveRecord::Base
   has_many :effects, :dependent => :delete_all
   has_many :pieces, :dependent => :destroy
   has_many :alone_pieces, :class_name => "Piece", :conditions => "article_id IS NULL"
-  has_many :touchables, :dependent => :delete_all, :order => :email
+  has_many :touchables, :dependent => :delete_all, :order => "canal, coordinate"
   has_many :testables, :class_name => "Touchable", :dependent => :delete_all, :order => :email, :conditions => {:test => true}
   has_attached_file :flyer, {
     :styles => { :web => "640x2000>", :medium => "96x96#", :thumb => "48x48#" },
@@ -92,17 +92,38 @@ class Communication < ActiveRecord::Base
   end
 
   def distribute(options = {})
+    # Email one-by-one
+    if (options[:only] || :email) == :email
+      5.times do 
+        sleep(10)
+      end
+    end
+    
+    # Fax all-in-one
+    if (options[:only] || :fax) == :fax
+      5.times do 
+        sleep(10)
+      end
+    end
+    
+    # Mail all-in-one
+    if (options[:only] || :mail) == :mail
+      5.times do 
+        sleep(10)
+      end
+    end
+    
     report = {}
     report[:count] = 0
     report[:errors] = {}
-    self.touchables.where(options[:where]).where("email NOT IN (SELECT email FROM untouchables)", self.client_id).find_each(:batch_size => 500) do |touchable|
-      report[:count] += 1
-      if x = self.distribute_to(touchable, options[:only])
-        report[:errors][touchable.id] = {:error => x, :touchable => touchable}
-      end
-      touchable.update_attribute(:sent_at, Time.now)
-    end
-    self.save
+    # self.touchables.where(options[:where]).where("email NOT IN (SELECT email FROM untouchables)", self.client_id).find_each(:batch_size => 500) do |touchable|
+    #   report[:count] += 1
+    #   if x = self.distribute_to(touchable, options[:only])
+    #     report[:errors][touchable.id] = {:error => x, :touchable => touchable}
+    #   end
+    #   touchable.update_attribute(:sent_at, Time.now)
+    # end
+    # self.save
     return report
   end
 
@@ -387,5 +408,14 @@ class Communication < ActiveRecord::Base
     out.gsub!('[DATE]', self.planned_on.l)    
     return out
   end
+
+  def duplicate!
+    c = self.dup
+    c.id = nil
+    c.name = "Copie de #{c.name}"
+    c.save!
+    return c
+  end
+
 
 end

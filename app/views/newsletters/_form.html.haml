@@ -1,3 +1,5 @@
+-page_title(@newsletter.new_record? ? "Nouvelle newsletter" : "Modification de la newsletter")
+
 =simple_fields_for @newsletter do |f|
   -if current_user.administrator?
     =f.association :client

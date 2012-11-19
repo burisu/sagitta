@@ -26,6 +26,7 @@ Sagitta::Application.routes.draw do
     end
     resources :communications, :except => [:index] do
       member do
+        post :duplicate
         get :populate
         post :populate
         post :distribute

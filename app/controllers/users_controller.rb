@@ -23,11 +23,13 @@ class UsersController < AdminController
     t.column :planned_on
     t.column :name, :through => :newsletter, :url => true
     t.action :edit
+    t.action :duplicate, :method => :post
     t.action :destroy
   end
 
-  list(:untouchables, :conditions => {:client_id => ['session[:current_user_id]']}) do |t|
-    t.column :email
+  list(:untouchables, :conditions => {:client_id => ['session[:current_user_id]']}, :order => "canal, coordinate") do |t|
+    t.column :canal
+    t.column :coordinate
     t.action :edit
     t.action :destroy
   end

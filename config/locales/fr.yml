@@ -1,12 +1,21 @@
 fr:
+  attributes:
+    canal: Canal
+    coordinate: Coordonnée
+    name: Nom
+    subject: Sujet
+    planned_on: Date
   labels:
     cancel: Annuler
     create: Créer
     destroy: Supprimer
+    duplicate: Dupliquer
     edit: Éditer
     new: Ajouter
     update: Modifier
     x_errors:
       one: "%{count} erreur"
       other: "%{count} erreurs"
-    
+    x_touchables:
+      one: "%{count} cible"
+      other: "%{count} cibles"

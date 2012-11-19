@@ -96,6 +96,15 @@ module ApplicationHelper
   end
 
 
+  def page_title(name)
+    content_for(:page_title, name)
+  end
+
+  def desc(&block)
+    content_for(:page_description, capture(&block))
+  end
+
+
   def toolbar(&block)
     return content_tag(:div, content_tag(:div, capture(&block), :class => "btn-group"), :class => "btn-toolbar")
   end

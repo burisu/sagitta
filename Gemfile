@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.8'
+gem 'rails', '3.2.9'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -24,6 +24,9 @@ gem 'css_parser'
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
 gem 'htmlentities'
+gem 'delayed_job_active_record'
+gem 'foreman'
+gem 'thin'
 
 # Gems used only for assets and not required
 # in production environments by default.

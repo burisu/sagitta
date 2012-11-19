@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121003140908) do
+ActiveRecord::Schema.define(:version => 20121119173410) do
 
   create_table "articles", :force => true do |t|
     t.integer  "communication_id",  :null => false
@@ -76,6 +76,22 @@ ActiveRecord::Schema.define(:version => 20121003140908) do
   add_index "communications", ["client_id"], :name => "index_communications_on_client_id"
   add_index "communications", ["key"], :name => "index_communications_on_key"
 
+  create_table "delayed_jobs", :force => true do |t|
+    t.integer  "priority",   :default => 0
+    t.integer  "attempts",   :default => 0
+    t.text     "handler"
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.string   "queue"
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
+  end
+
+  add_index "delayed_jobs", ["priority", "run_at"], :name => "delayed_jobs_priority"
+
   create_table "effects", :force => true do |t|
     t.integer  "communication_id", :null => false
     t.integer  "touchable_id"
@@ -133,30 +149,31 @@ ActiveRecord::Schema.define(:version => 20121003140908) do
 
   create_table "touchables", :force => true do |t|
     t.integer  "communication_id",                    :null => false
-    t.string   "email",                               :null => false
     t.datetime "sent_at"
     t.datetime "created_at",                          :null => false
     t.datetime "updated_at",                          :null => false
     t.string   "key"
     t.boolean  "test",             :default => false, :null => false
-    t.string   "fax"
+    t.text     "coordinate"
+    t.string   "canal"
+    t.text     "search_key"
   end
 
   add_index "touchables", ["communication_id"], :name => "index_touchables_on_communication_id"
-  add_index "touchables", ["email"], :name => "index_touchables_on_email"
   add_index "touchables", ["key"], :name => "index_touchables_on_key"
+  add_index "touchables", ["search_key"], :name => "index_touchables_on_search_key"
 
   create_table "untouchables", :force => true do |t|
     t.integer  "client_id",                          :null => false
-    t.string   "email",                              :null => false
     t.boolean  "destroyable",     :default => false, :null => false
     t.datetime "unsubscribed_at"
     t.datetime "created_at",                         :null => false
     t.datetime "updated_at",                         :null => false
+    t.text     "coordinate"
+    t.string   "canal"
   end
 
   add_index "untouchables", ["client_id"], :name => "index_untouchables_on_client_id"
-  add_index "untouchables", ["email"], :name => "index_untouchables_on_email"
 
   create_table "users", :force => true do |t|
     t.string   "full_name"
@@ -183,6 +200,8 @@ ActiveRecord::Schema.define(:version => 20121003140908) do
     t.integer  "communications_count",   :default => 0,  :null => false
     t.datetime "created_at",                             :null => false
     t.datetime "updated_at",                             :null => false
+    t.string   "costs"
+    t.string   "canals_priority"
   end
 
   add_index "users", ["authentication_token"], :name => "index_users_on_authentication_token", :unique => true

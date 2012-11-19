@@ -1,9 +1,13 @@
 !!!
 %html
   %head
-    %title=content_for(:title) || request.domain
+    %title=content_for(:page_title) || request.domain
     =stylesheet_link_tag    "application", :media => "all"
     =javascript_include_tag "application"
     =csrf_meta_tags
   %body
-    .container=yield
+    .container
+      %h1=(content_for?(:page_title) ? content_for(:page_title) : request.path)
+      -if content_for?(:page_description)
+        %p.lead=content_for(:page_description)
+      =yield

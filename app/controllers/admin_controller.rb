@@ -4,7 +4,7 @@ class AdminController < ApplicationController
   layout "admin"
 
   def index
-    redirect_to user_url(current_user)
+    redirect_to users_url
   end
 
 end

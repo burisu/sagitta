@@ -1,7 +1,9 @@
 =simple_fields_for @user do |f|
   =f.input :full_name
   =f.input :email
+  =f.input :costs, :as => :text, :input_html => {:rows => 3}
+  =f.input :canals_priority, :placeholder => Touchable.canals.join(', ')
 
-  -if current_user.administrator?
+  -if current_user.administrator? and params[:password]
     =f.input :password
     =f.input :password_confirmation
