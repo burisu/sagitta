@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121119173410) do
+ActiveRecord::Schema.define(:version => 20121119174848) do
 
   create_table "articles", :force => true do |t|
     t.integer  "communication_id",  :null => false
@@ -147,6 +147,35 @@ ActiveRecord::Schema.define(:version => 20121119173410) do
   add_index "pieces", ["article_id"], :name => "index_pieces_on_article_id"
   add_index "pieces", ["communication_id"], :name => "index_pieces_on_communication_id"
 
+  create_table "sendings", :force => true do |t|
+    t.integer  "shipment_id",  :null => false
+    t.integer  "touchable_id"
+    t.string   "canal"
+    t.text     "coordinate"
+    t.datetime "sent_at"
+    t.text     "report"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "sendings", ["shipment_id"], :name => "index_sendings_on_shipment_id"
+  add_index "sendings", ["touchable_id"], :name => "index_sendings_on_touchable_id"
+
+  create_table "shipments", :force => true do |t|
+    t.integer  "communication_id",                :null => false
+    t.string   "description"
+    t.datetime "started_at"
+    t.datetime "stopped_at"
+    t.integer  "dones",            :default => 0, :null => false
+    t.integer  "total",            :default => 0, :null => false
+    t.string   "state",                           :null => false
+    t.text     "report"
+    t.datetime "created_at",                      :null => false
+    t.datetime "updated_at",                      :null => false
+  end
+
+  add_index "shipments", ["communication_id"], :name => "index_shipments_on_communication_id"
+
   create_table "touchables", :force => true do |t|
     t.integer  "communication_id",                    :null => false
     t.datetime "sent_at"
@@ -171,6 +200,7 @@ ActiveRecord::Schema.define(:version => 20121119173410) do
     t.datetime "updated_at",                         :null => false
     t.text     "coordinate"
     t.string   "canal"
+    t.string   "search_key"
   end
 
   add_index "untouchables", ["client_id"], :name => "index_untouchables_on_client_id"

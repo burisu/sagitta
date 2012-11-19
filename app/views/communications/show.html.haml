@@ -38,6 +38,7 @@
     %li=link_to("Détails", "#details", "data-toggle" => "tab")
     %li=link_to("labels.x_touchables".t(:count => @communication.touchables.count), "#targets", "data-toggle" => "tab")
     %li=link_to("Coûts", "#costs", "data-toggle" => "tab")
+    %li=link_to("Envois", "#shipments", "data-toggle" => "tab")
   .tab-content
     #edit.tab-pane.active
 
@@ -99,3 +100,4 @@
           %th.dec=count.l
           %th.dec=amount.l(:currency => :EUR)
       =link_to("Mettre à jour les tarifs", edit_user_url(@communication.client))
+    #shipments.tab-pane{"data-refresh-with" => communication_url(@communication, :tab => :shipments), "data-refresh-every" => "2000"}=render :partial => "shipments"

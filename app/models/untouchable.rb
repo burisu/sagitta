@@ -10,6 +10,7 @@
 #  updated_at      :datetime         not null
 #  coordinate      :text
 #  canal           :string(255)
+#  search_key      :string(255)
 #
 
 # People who don't receive e-mails
@@ -25,4 +26,15 @@ class Untouchable < ActiveRecord::Base
   #   old = self.class.find(self.id)
   #   return false unless old.destroyable?
   # end
+
+  before_validation do
+    self.search_key = self.canal + "/"
+    if self.canal == "mail"
+      self.search_key += self.coordinate.split(";").collect{|x| x.strip.parameterize}.join(";")
+    else
+      self.search_key += self.coordinate.strip.mb_chars.downcase
+    end
+    return true
+  end
+  
 end

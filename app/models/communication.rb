@@ -45,6 +45,8 @@ class Communication < ActiveRecord::Base
   has_many :alone_pieces, :class_name => "Piece", :conditions => "article_id IS NULL"
   has_many :touchables, :dependent => :delete_all, :order => "canal, coordinate"
   has_many :testables, :class_name => "Touchable", :dependent => :delete_all, :order => :email, :conditions => {:test => true}
+  has_many :shipments, :order => "started_at DESC"
+  has_many :active_shipments, :conditions => {:state => "sending"}, :class_name => "Shipment", :order => "started_at DESC"
   has_attached_file :flyer, {
     :styles => { :web => "640x2000>", :medium => "96x96#", :thumb => "48x48#" },
     :path => ":rails_root/public/system/:class/:attachment/:id_partition/:style/:filename",
@@ -69,63 +71,66 @@ class Communication < ActiveRecord::Base
     end
   end
 
-  def distribute_to(touchable, mode = :all)
-    mode ||= :all
-    mode = [:email, :fax] if mode == :all
-    mode = [mode] unless mode.is_a? Array
-    exception = nil
-    if mode.include?(:email) and !touchable.email.blank?
-      begin
-        Distributor.communication(touchable).deliver
-      rescue Exception => e
-        exception = e
-      end
+  def prepare_shipment(options = {})
+    filter = {}
+    description = "Envoi"
+    if options[:mode] == :real
+      description << " réel"
+    else
+      description << " test"
+      filter[:test] = true
     end
-    if mode.include?(:fax) and !touchable.fax.blank? and touchable.email.blank?
-      begin
-        Distributor.fax_request(touchable).deliver
-      rescue Exception => e
-        exception = e
-      end
+    if options[:only]
+      description << " (#{options[:only].to_s.humanize} seulement)"
+      filter[:canal] = options[:only]
     end
-    return exception
+    shipment = self.shipments.create!(:description => description)
+    self.touchables.where("search_key NOT IN (SELECT search_key FROM untouchables)").where(filter).find_each do |touchable|
+      shipment.sendings.create!(:touchable => touchable)
+    end
+    shipment.total = shipment.sendings.count
+    return shipment
   end
 
-  def distribute(options = {})
-    # Email one-by-one
-    if (options[:only] || :email) == :email
-      5.times do 
-        sleep(10)
-      end
-    end
-    
-    # Fax all-in-one
-    if (options[:only] || :fax) == :fax
-      5.times do 
-        sleep(10)
-      end
-    end
-    
-    # Mail all-in-one
-    if (options[:only] || :mail) == :mail
-      5.times do 
-        sleep(10)
-      end
-    end
-    
-    report = {}
-    report[:count] = 0
-    report[:errors] = {}
-    # self.touchables.where(options[:where]).where("email NOT IN (SELECT email FROM untouchables)", self.client_id).find_each(:batch_size => 500) do |touchable|
-    #   report[:count] += 1
-    #   if x = self.distribute_to(touchable, options[:only])
-    #     report[:errors][touchable.id] = {:error => x, :touchable => touchable}
-    #   end
-    #   touchable.update_attribute(:sent_at, Time.now)
-    # end
-    # self.save
-    return report
-  end
+
+  # def distribute_to(touchable, mode = :all)
+  #   mode ||= :all
+  #   mode = [:email, :fax] if mode == :all
+  #   mode = [mode] unless mode.is_a? Array
+  #   exception = nil
+  #   if mode.include?(:email) and !touchable.email.blank?
+  #     begin
+  #       Distributor.communication(touchable).deliver
+  #     rescue Exception => e
+  #       exception = e
+  #     end
+  #   end
+  #   if mode.include?(:fax) and !touchable.fax.blank? and touchable.email.blank?
+  #     begin
+  #       Distributor.fax_request(touchable).deliver
+  #     rescue Exception => e
+  #       exception = e
+  #     end
+  #   end
+  #   return exception
+  # end
+
+  # def distribute(options = {})
+  #   shipment = self.shipments.create
+  #   shipment.distribute(options)
+  #   # report = {}
+  #   # report[:count] = 0
+  #   # report[:errors] = {}
+  #   # # self.touchables.where(options[:where]).where("email NOT IN (SELECT email FROM untouchables)", self.client_id).find_each(:batch_size => 500) do |touchable|
+  #   # #   report[:count] += 1
+  #   # #   if x = self.distribute_to(touchable, options[:only])
+  #   # #     report[:errors][touchable.id] = {:error => x, :touchable => touchable}
+  #   # #   end
+  #   # #   touchable.update_attribute(:sent_at, Time.now)
+  #   # # end
+  #   # # self.save
+  #   # return report
+  # end
 
   def distributable?
     !self.distributed and self.touchables.count > 0
@@ -299,7 +304,7 @@ class Communication < ActiveRecord::Base
 
 
 
-  def to_html(media = :screen)
+  def to_html(media = :screen, options = {})
     html = ""
     html << "<!DOCTYPE html>"
     html << "<html>"
@@ -365,7 +370,15 @@ class Communication < ActiveRecord::Base
       html << "</a>"
     end
 
+    if options[:mail].is_a?(Sending)
+      html << "<div style=\"position: absolute; left: 9.5cm; width: 8cm; top: 3.5cm; background: rgba(255, 255, 255, 0.6); padding: 5mm; font-size: 4mm; line-height: 5mm; font-family: monospace; border-radius: 5mm; border: 0.2mm solid #777777;\">"
+      html << options[:mail].coordinate.split(";").join("<br/>")
+      html << "</div>"
+    end
+
+
     html << "</div>" # /page
+
     html << "</body>"
     html << "</html>"
     return self.interpolate(html)
@@ -397,8 +410,8 @@ class Communication < ActiveRecord::Base
     # return doc.to_s
   end
 
-  def to_pdf
-    WickedPdf.new.pdf_from_string(self.to_html(:print))
+  def to_pdf(options = {})
+    WickedPdf.new.pdf_from_string(self.to_html(:print, options))
   end
 
   def interpolate(text)

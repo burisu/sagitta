@@ -16,6 +16,9 @@ fr:
     x_errors:
       one: "%{count} erreur"
       other: "%{count} erreurs"
+    x_active_shipments_on_y:
+      one: "%{count} envoi sur %{y}"
+      other: "%{count} envois sur %{y}"
     x_touchables:
       one: "%{count} cible"
       other: "%{count} cibles"

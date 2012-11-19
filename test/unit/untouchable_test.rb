@@ -10,6 +10,7 @@
 #  updated_at      :datetime         not null
 #  coordinate      :text
 #  canal           :string(255)
+#  search_key      :string(255)
 #
 
 require 'test_helper'

@@ -17,3 +17,25 @@
 //= require active-list.jquery
 //= require bootstrap
 //= require_tree .
+
+(function($) {
+
+
+    $(document).ready(function () {
+
+	$("*[data-refresh-with][data-refresh-every]").each(function(index) {
+	    var element = $(this);
+	    window.setInterval(function () {
+		$.ajax(element.data("refresh-with"), {
+		    dataType: 'html',
+		    success: function (data, status, xhr) {
+			element.html(data);
+		    }
+		});
+	    }, parseInt(element.data("refresh-every")));
+	    return true;
+	});
+
+    });
+
+})(jQuery);

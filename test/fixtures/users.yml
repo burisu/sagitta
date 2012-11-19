@@ -28,6 +28,7 @@
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
 #  costs                  :string(255)
+#  canals_priority        :string(255)
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html

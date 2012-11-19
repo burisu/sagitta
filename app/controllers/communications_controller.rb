@@ -15,13 +15,21 @@ class CommunicationsController < AdminController
   def show
     @communication = Communication.find(params[:id])
     @communication.save if @communication.key.blank?
-    respond_to do |format|
-      format.html { session[:communication_id] = @communication.id}
-      format.pdf  { send_data @communication.to_pdf }
-      format.json { render :json => @communication }
-      format.xml  { render :xml => @communication }
+
+    if request.xhr?
+      if params[:tab] == "shipments"
+        render :partial => "shipments"
+      else
+        head :not_found
+      end
+    else
+      respond_to do |format|
+        format.html { session[:communication_id] = @communication.id}
+        format.pdf  { send_data @communication.to_pdf }
+        format.json { render :json => @communication }
+        format.xml  { render :xml => @communication }
+      end
     end
-    
   end
   
   def new
@@ -150,18 +158,11 @@ class CommunicationsController < AdminController
 
   def distribute
     @communication = Communication.find(params[:id])
-    settings = {}
-    if params[:mode] == "real"
-      settings[:where] = "TRUE"      
-    elsif params[:mode] == "unsent"
-      settings[:where] = "sent_at IS NULL"
-    else
-      settings[:where] = "test"
-    end
+    settings = {:mode => (params[:mode] || "test").to_sym}
     unless params[:only].blank?
       settings[:only] = params[:only].to_sym
     end
-    @report = @communication.delay.distribute(settings)
+    @communication.prepare_shipment(settings).distribute
     redirect_to communication_url(@communication)
   end
 

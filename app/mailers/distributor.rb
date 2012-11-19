@@ -31,7 +31,7 @@ class Distributor < ActionMailer::Base
         attachments.inline[@communication.flyer.original_filename] = File.read(@communication.flyer.path(:web))
       end
     end
-    settings = {:to => @touchable.email, :from => @communication.from, :subject => @communication.interpolate(@communication.subject)}
+    settings = {:to => @touchable.coordinate, :from => @communication.from, :subject => @communication.interpolate(@communication.subject)}
     settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
     mail(settings) do |format|
       format.text("Content-type" => "text/plain; charset=utf8")
@@ -45,6 +45,18 @@ class Distributor < ActionMailer::Base
     @communication = touchable.communication
     attachments[@communication.title.parameterize+".pdf"] = @communication.to_pdf
     attachments["numbers.txt"] = touchable.fax
+    for piece in @communication.pieces
+      attachments[piece.name.parameterize+".pdf"] = File.read(piece.document.path(:original))
+    end
+    settings = {:to => "fax@ecofax.fr", :from => "fax-reply@agrimail.fr", :subject => @communication.newsletter.ecofax_number}
+    settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
+    mail(settings)
+  end
+
+  def fax_shipment_request(shipment, options = {})
+    @communication = shipment.communication
+    attachments[@communication.title.parameterize+".pdf"] = @communication.to_pdf
+    attachments["numbers.txt"] = shipment.sendings.where(:canal => "fax").collect{|s| s.coordinate}.join("\n")
     for piece in @communication.pieces
       attachments[piece.name.parameterize+".pdf"] = File.read(piece.document.path(:original))
     end

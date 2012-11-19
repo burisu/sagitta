@@ -30,6 +30,7 @@ class UsersController < AdminController
   list(:untouchables, :conditions => {:client_id => ['session[:current_user_id]']}, :order => "canal, coordinate") do |t|
     t.column :canal
     t.column :coordinate
+    t.column :search_key
     t.action :edit
     t.action :destroy
   end
@@ -37,6 +38,11 @@ class UsersController < AdminController
 
   def show
     @user = User.find(params[:id])
+    if @user.untouchables.where(:search_key => nil).count > 0
+      @user.untouchables.where(:search_key => nil).find_each do |u|
+        u.save!
+      end
+    end
     if @user != current_user and !current_user.administrator?
       redirect_to user_url(current_user)
       return

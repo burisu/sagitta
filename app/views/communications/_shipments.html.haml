@@ -1,0 +1,17 @@
+%table.table.table-striped.table-bordered
+  %tr
+    %th Description
+    %th Lancé le
+    %th Quantité
+    %th Avancement
+  -for shipment in @communication.shipments
+    -shipment.reload
+    %tr
+      %td=shipment.description
+      %td=(shipment.started_at ? shipment.started_at.l : "&mdash;".html_safe)
+      %td.dec=shipment.total
+      %td
+        -activeness = (shipment.sending? ? {:class => 'active'} : {})
+        .progress.progress-striped{activeness}
+          .bar{:style => "width: #{shipment.progress}%;"}
+=h("Dernière mise à jour :") + Time.now.l
