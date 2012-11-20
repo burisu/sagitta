@@ -13,6 +13,7 @@
 //= require jquery
 //= require jquery-ui
 //= require jquery_ujs
+//= require jquery.autogrow-textarea
 //= require formize
 //= require active-list.jquery
 //= require bootstrap
@@ -22,6 +23,14 @@
 
 
     $(document).ready(function () {
+
+       $("textarea").each(function(index) {
+            var element = $(this);
+            /* Adds autogrow function */
+            element.autogrow();
+        });
+
+
 
 	$("*[data-refresh-with][data-refresh-every]").each(function(index) {
 	    var element = $(this);
@@ -34,6 +43,15 @@
 		});
 	    }, parseInt(element.data("refresh-every")));
 	    return true;
+	});
+
+	$(document).on("click", "[data-tabbox] a[data-toggle='tab']", function (event) {
+	    var element = $(this), tabbox, tab_pane;
+	    tabbox = element.closest("[data-tabbox]");
+	    tab_pane = tabbox.find(".tab-pane.active").first();
+	    $.ajax(tabbox.data("tabbox"), {
+		data: {tab: tab_pane.attr("id")}
+	    });
 	});
 
     });

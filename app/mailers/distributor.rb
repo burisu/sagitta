@@ -27,6 +27,7 @@ class Distributor < ActionMailer::Base
         attachments.inline[@header] = File.read(@communication.header.path(:web))
       end
     else
+      headers['List-Unsubscribe'] = "<"+@unsubscribe_url.strip+">"
       if @communication.flyer.file?
         attachments.inline[@communication.flyer.original_filename] = File.read(@communication.flyer.path(:web))
       end

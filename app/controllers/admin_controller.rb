@@ -7,4 +7,13 @@ class AdminController < ApplicationController
     redirect_to users_url
   end
 
+  def toggle_tab
+    if session[:tabbox].is_a?(Hash)
+      if session[:tabbox][params[:id]]
+        session[:tabbox][params[:id]] = params[:tab]
+      end
+    end
+    render :inline => ''
+  end
+
 end

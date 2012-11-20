@@ -2,16 +2,21 @@
 #
 # Table name: shipments
 #
-#  id               :integer          not null, primary key
-#  communication_id :integer          not null
-#  started_at       :datetime
-#  stopped_at       :datetime
-#  count            :integer          default(0), not null
-#  total            :integer          default(0), not null
-#  state            :string(255)      not null
-#  report           :text
-#  created_at       :datetime         not null
-#  updated_at       :datetime         not null
+#  id                :integer          not null, primary key
+#  communication_id  :integer          not null
+#  description       :string(255)
+#  started_at        :datetime
+#  stopped_at        :datetime
+#  dones             :integer          default(0), not null
+#  total             :integer          default(0), not null
+#  state             :string(255)      not null
+#  report            :text
+#  mail_file_name    :string(255)
+#  mail_file_size    :integer
+#  mail_content_type :string(255)
+#  mail_updated_at   :datetime
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
 #
 
 class Shipment < ActiveRecord::Base
@@ -20,14 +25,13 @@ class Shipment < ActiveRecord::Base
   has_many :sendings
   has_many :touchables, :through => :sendings
   has_attached_file :mail, {
-    
+    :url  => "/admin/shipments/:id/mail/:style.:extension",
+    :path => ":rails_root/private/:class/:id_partition/:attachment/:style.:extension"    
   }
 
   before_validation do
     self.state ||= "waiting"
   end
-
-
 
   def distribute
     # Start distribution
@@ -56,23 +60,21 @@ class Shipment < ActiveRecord::Base
       self.sendings.where(:canal => "mail").find_each do |sending|
         file = Rails.root.join("tmp", "sending-#{sending.id}.pdf")
         files << file.to_s
-        File.open(file, "wb") do |f|
-          f.write self.communication.to_pdf(:mail => sending)
-        end
+        self.communication.mail_to(sending, :output => file)
         sending.update_attribute(:sent_at, Time.now)
         self.update_attribute(:dones, self.dones + 1)
       end
       # Merge all letters
       output = Rails.root.join("tmp", "shipment-#{self.id}.pdf")
       system("pdftk #{files.join(' ')} cat output #{output}")
-      
+
       # Register PDF in mail
       File.open(output, "rb") do |f|
         self.mail = f
         self.save
       end
       # Send mail to give link to download
-      
+      # TODO: Notify user that it's finished
     end
 
     
@@ -84,6 +86,10 @@ class Shipment < ActiveRecord::Base
   
   def progress
     return (100.to_f * self.dones.to_f / self.total.to_f).round(3)
+  end
+
+  def done?
+    self.state == "done"
   end
 
   def sending?

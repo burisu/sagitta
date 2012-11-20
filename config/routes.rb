@@ -16,6 +16,7 @@ Sagitta::Application.routes.draw do
       end
     end
     resources :pieces
+    match "/shipments/:id/mail/:style.:extension" => "communications#mail", :via => :get
     resources :users do
       collection do
         get :list
@@ -38,6 +39,7 @@ Sagitta::Application.routes.draw do
     end
     resources :touchables, :except => [:show, :index, :new, :create]
     resources :untouchables, :except => [:show, :index]
+    match "/tab/:id" => "admin#toggle_tab", :via => :get
     root :to => "admin#index", :via => :get
   end
 

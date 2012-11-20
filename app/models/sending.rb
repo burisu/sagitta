@@ -4,7 +4,9 @@
 #
 #  id           :integer          not null, primary key
 #  shipment_id  :integer          not null
-#  touchable_id :integer          not null
+#  touchable_id :integer
+#  canal        :string(255)
+#  coordinate   :text
 #  sent_at      :datetime
 #  report       :text
 #  created_at   :datetime         not null

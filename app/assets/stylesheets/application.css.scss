@@ -79,6 +79,9 @@ html {
     margin-right: round($fs-normal/2); 
     margin-bottom: round($fs-normal/2); 
   }
+  ul { 
+    li { list-style-type: square; }
+  }
 }
 
 input.large { 
@@ -210,7 +213,7 @@ pre {
 
 
 textarea { 
-  width: 100%;
+  width: 90%;
   resize: vertical;
   font-family: monospace;
 }

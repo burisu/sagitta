@@ -11,7 +11,7 @@
     =tool("Importer les cibles", populate_communication_url(@communication))
     -if @communication.touchables.count > 0
       =tool("Supprimer les cibles", clear_communication_url(@communication), :method => :delete, "data-confirm" => "Sûr ?")
-  -unless @communication.newsletter
+  -if @communication.flyer?
     =tool("HTML", message_url(@communication.key), :target => "_blank")
   =tool("PDF", communication_url(@communication, :format => :pdf))
 -if @communication.testables.count > 0
@@ -32,72 +32,73 @@
         %li=link_to("Envoi #{canal.humanize} seulement", distribute_communication_url(@communication, :only => canal, :mode => :real), :method => :post, "data-confirm" => "Sûr(e) ?")
 
 
-.tabbable
-  %ul.nav.nav-tabs
-    %li.active=link_to((@communication.newsletter ? "Newsletter" : "Flyer"), "#edit", "data-toggle" => "tab")
-    %li=link_to("Détails", "#details", "data-toggle" => "tab")
-    %li=link_to("labels.x_touchables".t(:count => @communication.touchables.count), "#targets", "data-toggle" => "tab")
-    %li=link_to("Coûts", "#costs", "data-toggle" => "tab")
-    %li=link_to("Envois", "#shipments", "data-toggle" => "tab")
-  .tab-content
-    #edit.tab-pane.active
+=tabbox(:communication) do |t|
+  -t.tab(:edit, @communication.nature.humanize) do
+    -if @communication.newsletter?
+      .pull-right
+        =toolbar do
+          =tool("Ajouter un article", new_article_url(:communication_id => @communication.id), :icon => "plus")
+          =tool("Ajouter une pièce", new_piece_url(:communication_id => @communication.id), :icon => "file")
+          -if current_user.administrator
+            =tool("Newsletter", edit_newsletter_url(@communication.newsletter), :icon => "wrench")
+      .newsletter
+        -if @communication.header.file?
+          =image_tag(@communication.header.url(:web), :class => "nl-header")
+        %h1=@communication.interpolate(@communication.title)
+        .introduction=beautify(@communication.introduction)
+        .articles=render :partial => "articles/article", :collection => @communication.articles
+        .conclusion=beautify(@communication.conclusion)
+        .footer=beautify(@communication.footer)
+        =render :partial => "pieces/piece", :collection => @communication.alone_pieces
 
-      -if @communication.newsletter
-        .pull-right
-          =toolbar do
-            =tool("Ajouter un article", new_article_url(:communication_id => @communication.id), :icon => "plus")
-            =tool("Ajouter une pièce", new_piece_url(:communication_id => @communication.id), :icon => "file")
-            -if current_user.administrator
-              =tool("Newsletter", edit_newsletter_url(@communication.newsletter), :icon => "wrench")
-        .newsletter
-          -if @communication.header.file?
-            =image_tag(@communication.header.url(:web), :class => "nl-header")
-          %h1=@communication.interpolate(@communication.title)
-          .introduction=beautify(@communication.introduction)
-          .articles=render :partial => "articles/article", :collection => @communication.articles
-          .conclusion=beautify(@communication.conclusion)
-          .footer=beautify(@communication.footer)
-          =render :partial => "pieces/piece", :collection => @communication.alone_pieces
-      
-      -else
-        .flyer=image_tag(@communication.flyer.url(:web))
+    -elsif @communication.document?
+      .pull-right
+        =toolbar do
+          =tool("Document PDF", communication_url(@communication, :format => :pdf), :icon => "file")
+  
+      .flyer=image_tag(@communication.flyer.url(:web))    
+    -elsif @communication.flyer?
+      .flyer=image_tag(@communication.flyer.url(:web))
+  
+  -t.tab(:details, "Détails") do
+    -fields = [:name, :planned_on, :sender_email, :sender_label, :reply_to_email, :subject, :target_url]
+    -if @communication.newsletter
+      -#fields += [:title, :introduction, :conclusion]
+    -else
+      -fields += [:message, :unreadable_label, :unsubscribe_label, :message_label]
+    %table.table.table-striped.table-bordered
+      -for x in fields
+        %tr.field.input
+          %th=Communication.human_attribute_name(x)
+          %td=beautify(@communication.send(x).to_s)
 
+  -t.tab(:touchables, "labels.x_touchables".t(:count => @communication.touchables.count)) do
+    =list :touchables
 
-    #details.tab-pane
-      -fields = [:name, :planned_on, :sender_email, :sender_label, :reply_to_email, :subject, :target_url]
-      -if @communication.newsletter
-        -#fields += [:title, :introduction, :conclusion]
-      -else
-        -fields += [:message, :unreadable_label, :unsubscribe_label, :message_label]
-      %table.table.table-striped.table-bordered
-        -for x in fields
-          %tr.field.input
-            %th=Communication.human_attribute_name(x)
-            %td=beautify(@communication.send(x).to_s)
-    #targets.tab-pane
-      =list :touchables
-    #costs.tab-pane
-      %table.table.table-striped.table-bordered
+  -t.tab(:costs, "Coûts") do
+    %table.table.table-striped.table-bordered
+      %tr
+        %th Canal
+        %th Coût unitaire
+        %th Quantité
+        %th Coût
+      -count, amount = 0, 0.0
+      -for canal in Touchable.canals
+        -cnt = @communication.touchables.where(:canal => canal).count
+        -uat = @communication.client.costs_hash[canal].to_f
+        -ant = cnt * uat
+        -count += cnt
+        -amount += ant
         %tr
-          %th Canal
-          %th Coût unitaire
-          %th Quantité
-          %th Coût
-        -count, amount = 0, 0.0
-        -for canal in Touchable.canals
-          -cnt = @communication.touchables.where(:canal => canal).count
-          -uat = @communication.client.costs_hash[canal].to_f
-          -ant = cnt * uat
-          -count += cnt
-          -amount += ant
-          %tr
-            %td=canal.humanize
-            %td.dec=uat.l(:currency => :EUR)
-            %td.dec=cnt.l
-            %td.dec=ant.l(:currency => :EUR)
-        %tr
-          %th{:colspan => 2} Total
-          %th.dec=count.l
-          %th.dec=amount.l(:currency => :EUR)
-      =link_to("Mettre à jour les tarifs", edit_user_url(@communication.client))
-    #shipments.tab-pane{"data-refresh-with" => communication_url(@communication, :tab => :shipments), "data-refresh-every" => "2000"}=render :partial => "shipments"
+          %td=canal.humanize
+          %td.dec=uat.l(:currency => :EUR)
+          %td.dec=cnt.l
+          %td.dec=ant.l(:currency => :EUR)
+      %tr
+        %th{:colspan => 2} Total
+        %th.dec=count.l
+        %th.dec=amount.l(:currency => :EUR)
+    =link_to("Mettre à jour les tarifs", edit_user_url(@communication.client))
+
+  -t.tab(:shipments, "Envois", {"data-refresh-with" => communication_url(@communication, :tab => :shipments), "data-refresh-every" => "4000"}) do
+    =render :partial => "shipments"

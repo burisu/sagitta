@@ -4,6 +4,7 @@
     %th Lancé le
     %th Quantité
     %th Avancement
+    %th Mail
   -for shipment in @communication.shipments
     -shipment.reload
     %tr
@@ -11,7 +12,11 @@
       %td=(shipment.started_at ? shipment.started_at.l : "&mdash;".html_safe)
       %td.dec=shipment.total
       %td
-        -activeness = (shipment.sending? ? {:class => 'active'} : {})
+        -activeness = (shipment.sending? ? {:class => 'active'} : shipment.done? ? {:class => "progress-success"} : {})
         .progress.progress-striped{activeness}
           .bar{:style => "width: #{shipment.progress}%;"}
-=h("Dernière mise à jour :") + Time.now.l
+      %td
+        -if shipment.mail.file?
+          =link_to(shipment.mail.url) do
+            %i.icon-file
+=h("Dernière mise à jour : ") + Time.now.l

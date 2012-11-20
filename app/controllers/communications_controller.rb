@@ -34,21 +34,24 @@ class CommunicationsController < AdminController
   
   def new
     @communication = Communication.new(:client_id => params[:client_id])
-    @communication.newsletter = Newsletter.find_by_id(params[:newsletter_id])
-    @communication.client ||= @communication.newsletter.client
-    if @communication.newsletter
-      @communication.with_pdf     = @communication.newsletter.with_pdf
-      @communication.introduction = @communication.newsletter.introduction
-      @communication.conclusion   = @communication.newsletter.conclusion
-      if previous = @communication.newsletter.communications.order(:created_at).last
-        for attr in [:name, :subject, :title, :sender_label, :sender_email, :reply_to_email, :target_url]
-          @communication.send("#{attr}=", previous.send(attr))
+    @communication.nature = params[:nature]
+    if @communication.newsletter?
+      @communication.newsletter = Newsletter.find_by_id(params[:newsletter_id])
+      @communication.client ||= @communication.newsletter.client
+      if @communication.newsletter
+        @communication.with_pdf     = @communication.newsletter.with_pdf
+        @communication.introduction = @communication.newsletter.introduction
+        @communication.conclusion   = @communication.newsletter.conclusion
+        if previous = @communication.newsletter.communications.order(:created_at).last
+          for attr in [:name, :subject, :title, :sender_label, :sender_email, :reply_to_email, :target_url]
+            @communication.send("#{attr}=", previous.send(attr))
+          end
+          @communication.introduction = previous.introduction if @communication.introduction.blank?
+          @communication.conclusion   = previous.conclusion if @communication.conclusion.blank?
+          @communication.subject.to_s.succ! if @communication.subject.to_s.match(/\d+$/)
+          @communication.title.to_s.succ! if @communication.title.to_s.match(/\d+$/)
+          @communication.name.to_s.succ! if @communication.name.to_s.match(/\d+$/)
         end
-        @communication.introduction = previous.introduction if @communication.introduction.blank?
-        @communication.conclusion   = previous.conclusion if @communication.conclusion.blank?
-        @communication.subject.to_s.succ! if @communication.subject.to_s.match(/\d+$/)
-        @communication.title.to_s.succ! if @communication.title.to_s.match(/\d+$/)
-        @communication.name.to_s.succ! if @communication.name.to_s.match(/\d+$/)
       end
     end
     respond_to do |format|
@@ -164,6 +167,11 @@ class CommunicationsController < AdminController
     end
     @communication.prepare_shipment(settings).distribute
     redirect_to communication_url(@communication)
+  end
+
+  def mail
+    shipment = Shipment.find(params[:id])
+    send_file shipment.mail.path(:original)
   end
 
 end

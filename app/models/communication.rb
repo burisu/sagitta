@@ -3,40 +3,48 @@
 #
 # Table name: communications
 #
-#  id                 :integer          not null, primary key
-#  client_id          :integer          not null
-#  name               :string(255)
-#  planned_on         :date
-#  sender_label       :string(255)
-#  sender_email       :string(255)
-#  reply_to_email     :string(255)
-#  test_email         :string(255)
-#  message            :text
-#  flyer_file_name    :string(255)
-#  flyer_file_size    :integer
-#  flyer_content_type :string(255)
-#  flyer_updated_at   :datetime
-#  flyer_fingerprint  :string(255)
-#  distributed        :boolean          default(FALSE), not null
-#  distributed_at     :datetime
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  lock_version       :integer          default(0), not null
-#  subject            :string(255)
-#  unsubscribe_label  :string(255)
-#  unreadable_label   :string(255)
-#  message_label      :string(255)
-#  target_url         :string(255)
-#  key                :string(255)
-#  introduction       :text
-#  conclusion         :text
-#  newsletter_id      :integer
-#  title              :string(255)
-#  with_pdf           :boolean          default(FALSE), not null
+#  id                    :integer          not null, primary key
+#  client_id             :integer          not null
+#  name                  :string(255)
+#  planned_on            :date
+#  sender_label          :string(255)
+#  sender_email          :string(255)
+#  reply_to_email        :string(255)
+#  test_email            :string(255)
+#  message               :text
+#  flyer_file_name       :string(255)
+#  flyer_file_size       :integer
+#  flyer_content_type    :string(255)
+#  flyer_updated_at      :datetime
+#  flyer_fingerprint     :string(255)
+#  distributed           :boolean          default(FALSE), not null
+#  distributed_at        :datetime
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
+#  lock_version          :integer          default(0), not null
+#  subject               :string(255)
+#  unsubscribe_label     :string(255)
+#  unreadable_label      :string(255)
+#  message_label         :string(255)
+#  target_url            :string(255)
+#  key                   :string(255)
+#  introduction          :text
+#  conclusion            :text
+#  newsletter_id         :integer
+#  title                 :string(255)
+#  with_pdf              :boolean          default(FALSE), not null
+#  nature                :string(255)
+#  document_file_name    :string(255)
+#  document_content_type :string(255)
+#  document_file_size    :integer
+#  document_updated_at   :datetime
 #
 
 class Communication < ActiveRecord::Base
-  attr_accessible :client_id, :name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message, :flyer, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :newsletter_id, :introduction, :conclusion, :title, :with_pdf
+  include Prawn::Measurements
+
+  @@natures = ["flyer", "newsletter", "document"]
+  attr_accessible :client_id, :name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message, :flyer, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :newsletter_id, :introduction, :conclusion, :title, :with_pdf, :document, :nature
   belongs_to :client, :class_name => "User", :counter_cache => true
   belongs_to :newsletter
   has_many :articles, :dependent => :delete_all, :order => :position
@@ -52,11 +60,21 @@ class Communication < ActiveRecord::Base
     :path => ":rails_root/public/system/:class/:attachment/:id_partition/:style/:filename",
     :url => "/system/:class/:attachment/:id_partition/:style/:filename"
   }
+  has_attached_file :document, {
+    :path => ":rails_root/private/:class/:attachment/:id_partition/:style/:filename",
+    :url => "/system/:class/:attachment/:id_partition/:style/:filename"
+  }
+
+  validates_presence_of :nature
+  validates_presence_of :newsletter, :if => Proc.new{|c| c.newsletter? }
+  validates_attachment_presence :document, :if => Proc.new{|c| c.document? }
+  validates_attachment_content_type :document, :content_type => ["application/pdf", "application/x-pdf"], :if => Proc.new{|c| c.document? }
+  validates_attachment_presence :flyer, :if => Proc.new{|c| c.flyer? }
+  validates_inclusion_of :nature, :in => @@natures
 
   delegate :global_style, :print_style, :header, :footer, :to => :newsletter
 
-  include Prawn::Measurements
-  
+
   after_initialize do
     self.unreadable_label ||= "Cliquez-ici si le message est illisible"
     self.unsubscribe_label ||= "Se désabonner"
@@ -64,6 +82,17 @@ class Communication < ActiveRecord::Base
   end
 
   before_validation do
+    if self.document?
+      if self.document.queued_for_write[:original].path
+        input = self.document.queued_for_write[:original].path
+        output = Rails.root.join("tmp", "doc-out-"+rand(10000000).to_s(36)+".jpg")
+        system("convert -antialias -density 200x200 \"#{input}[0]\" #{output}")
+        File.open(output, "rb") do |f|
+          self.flyer = f
+        end
+      end
+    end
+
     if self.key.blank?
       begin
         self.key = self.class.generate_key(43)
@@ -254,53 +283,6 @@ class Communication < ActiveRecord::Base
     return html
   end
 
-  # def self.beautify_for_pdf(text, options = {})
-  #   html = self.interpolate(text)
-  #   for character, escape in {"&" => "&amp;", "<" => "&lt;", ">" => "&gt;", "'" => "’"}
-  #     html.gsub!(character, escape)
-  #   end
-  #   html.gsub!(/^\ \ [\*\-]\ +(.*)\ *$/, '<ul><li>\1</li></ul>')
-  #   html.gsub!(/\<\/ul\>\ *\n?\ *\<ul\>/, '')
-  #   # Stars
-  #   html.gsub!(/(^|[^\*])\*([^\*]|$)/, '\1∗\2')
-  #   # Emphase
-  #   html.gsub!(/([^\:])\/\/([^\s][^\/]+)\/\//, '\1<i>\2</i>')
-  #   # Strong
-  #   html.gsub!(/\*\*([^\s\*][^\*]*[^\s\*])\*\*/, '<b>\1</b>')
-  #   # URL
-  #   html.gsub!(/\[\[[^\|\]]+(\|[^\]]+)?\]\]/) do |link|
-  #     link = link[2..-3].strip.split("|")
-  #     url = link[0].strip
-  #     url = "http://"+url unless url.match(/^\w+\:\/\//)
-  #     label = link[1] || url
-  #     "<link href=\"#{url}\">#{label}</link>"
-  #   end
-  #   # Tables
-  #   classes = [:odd, :even]
-  #   c = nil
-  #   html.gsub!(/^\ *\|(.*)\|\ *\r?\n/) do |line|
-  #     cells = line.strip[1..-1].split(/\|/).collect do |data|
-  #       t, align = "td", "left"
-  #       if data[0..0] == "#"
-  #         t = "th" 
-  #         data = data[1..-1]
-  #       end
-  #       if data[0..1] == "  "
-  #         if data.size > 4 and data[-2..-1] == "  "
-  #           align = "center"
-  #         else
-  #           align = "right"
-  #         end
-  #       end
-  #       "<#{t} class=\"a-#{align}\">#{data.strip}</#{t}>"
-  #     end
-  #     c = classes[classes.index(c) ? (classes.index(c) + 1)  : 0] || classes[0]
-  #     "<table><tbody><tr class=\"#{c}\">" + cells.join + "</tr></tbody></table>"
-  #   end
-  #   html.gsub!(/\<\/tbody\><\/table\>\ *\n?\ *\<table\>\<tbody\>/, '')
-
-  #   return html
-  # end
 
 
 
@@ -411,8 +393,31 @@ class Communication < ActiveRecord::Base
   end
 
   def to_pdf(options = {})
-    WickedPdf.new.pdf_from_string(self.to_html(:print, options))
+    data = nil
+    if self.document?
+      File.open(self.document.path(:original), "rb") do |f|
+        data = f.read
+      end
+    else
+      data = WickedPdf.new.pdf_from_string(self.to_html(:print, options))
+    end
+    return data
   end
+
+  def mail_to(sending, options = {})
+    file = options[:output] || Rails.root.join("tmp", "sending-mail-#{sending.id}.pdf")
+    if self.document?
+      Prawn::Document.generate(file, :template => self.document.path(:original), :margin => [0, 0, 0, 0]) do |pdf|
+        pdf.text_box sending.coordinate.split(";").join("\r\n"), :at => [mm2pt(105), mm2pt(250)], :width => mm2pt(85),:align => :left
+      end
+    else
+      File.open(file, "wb") do |f|
+        f.write self.communication.to_pdf(:mail => sending)
+      end
+    end
+    return file
+  end
+
 
   def interpolate(text)
     out = text.to_s.dup
@@ -430,5 +435,17 @@ class Communication < ActiveRecord::Base
     return c
   end
 
+
+  def newsletter?
+    (self.nature == "newsletter" ? true : false)
+  end
+
+  def flyer?
+    (self.nature == "flyer" ? true : false)
+  end
+
+  def document?
+    (self.nature == "document" ? true : false)
+  end
 
 end

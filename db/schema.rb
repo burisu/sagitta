@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121119174848) do
+ActiveRecord::Schema.define(:version => 20121120144737) do
 
   create_table "articles", :force => true do |t|
     t.integer  "communication_id",  :null => false
@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(:version => 20121119174848) do
   add_index "articles_newsletter_rubrics", ["newsletter_rubric_id"], :name => "index_articles_newsletter_rubrics_on_newsletter_rubric_id"
 
   create_table "communications", :force => true do |t|
-    t.integer  "client_id",                             :null => false
+    t.integer  "client_id",                                :null => false
     t.string   "name"
     t.date     "planned_on"
     t.string   "sender_label"
@@ -55,11 +55,11 @@ ActiveRecord::Schema.define(:version => 20121119174848) do
     t.string   "flyer_content_type"
     t.datetime "flyer_updated_at"
     t.string   "flyer_fingerprint"
-    t.boolean  "distributed",        :default => false, :null => false
+    t.boolean  "distributed",           :default => false, :null => false
     t.datetime "distributed_at"
-    t.datetime "created_at",                            :null => false
-    t.datetime "updated_at",                            :null => false
-    t.integer  "lock_version",       :default => 0,     :null => false
+    t.datetime "created_at",                               :null => false
+    t.datetime "updated_at",                               :null => false
+    t.integer  "lock_version",          :default => 0,     :null => false
     t.string   "subject"
     t.string   "unsubscribe_label"
     t.string   "unreadable_label"
@@ -70,7 +70,12 @@ ActiveRecord::Schema.define(:version => 20121119174848) do
     t.text     "conclusion"
     t.integer  "newsletter_id"
     t.string   "title"
-    t.boolean  "with_pdf",           :default => false, :null => false
+    t.boolean  "with_pdf",              :default => false, :null => false
+    t.string   "nature"
+    t.string   "document_file_name"
+    t.string   "document_content_type"
+    t.integer  "document_file_size"
+    t.datetime "document_updated_at"
   end
 
   add_index "communications", ["client_id"], :name => "index_communications_on_client_id"
@@ -162,16 +167,20 @@ ActiveRecord::Schema.define(:version => 20121119174848) do
   add_index "sendings", ["touchable_id"], :name => "index_sendings_on_touchable_id"
 
   create_table "shipments", :force => true do |t|
-    t.integer  "communication_id",                :null => false
+    t.integer  "communication_id",                 :null => false
     t.string   "description"
     t.datetime "started_at"
     t.datetime "stopped_at"
-    t.integer  "dones",            :default => 0, :null => false
-    t.integer  "total",            :default => 0, :null => false
-    t.string   "state",                           :null => false
+    t.integer  "dones",             :default => 0, :null => false
+    t.integer  "total",             :default => 0, :null => false
+    t.string   "state",                            :null => false
     t.text     "report"
-    t.datetime "created_at",                      :null => false
-    t.datetime "updated_at",                      :null => false
+    t.string   "mail_file_name"
+    t.integer  "mail_file_size"
+    t.string   "mail_content_type"
+    t.datetime "mail_updated_at"
+    t.datetime "created_at",                       :null => false
+    t.datetime "updated_at",                       :null => false
   end
 
   add_index "shipments", ["communication_id"], :name => "index_shipments_on_communication_id"

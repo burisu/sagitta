@@ -42,7 +42,7 @@ class User < ActiveRecord::Base
   attr_accessible :email, :password, :password_confirmation, :remember_me, :full_name, :administrator, :costs, :canals_priority
   
   has_many :communications, :foreign_key => :client_id, :dependent => :delete_all
-  has_many :newsletters, :foreign_key => :client_id, :dependent => :delete_all
+  has_many :newsletters, :foreign_key => :client_id, :dependent => :delete_all, :order => :name
   has_many :untouchables, :foreign_key => :client_id, :dependent => :delete_all
 
   def name
