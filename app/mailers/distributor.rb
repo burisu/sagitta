@@ -32,10 +32,15 @@ class Distributor < ActionMailer::Base
         attachments.inline[@communication.flyer.original_filename] = File.read(@communication.flyer.path(:web))
       end
     end
+    if @communication.document?
+      attachments[@communication.document.original_filename] = File.read(@communication.document.path(:original))
+    end
     settings = {:to => @touchable.coordinate, :from => @communication.from, :subject => @communication.interpolate(@communication.subject)}
     settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
     mail(settings) do |format|
-      format.text("Content-type" => "text/plain; charset=utf8")
+      unless @communication.document?
+        format.text("Content-type" => "text/plain; charset=utf8")
+      end
       format.html("Content-type" => "text/html; charset=utf8")
     end
   end

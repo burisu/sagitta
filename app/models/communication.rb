@@ -83,7 +83,7 @@ class Communication < ActiveRecord::Base
 
   before_validation do
     if self.document?
-      if self.document.queued_for_write[:original].path
+      if self.document.queued_for_write[:original]
         input = self.document.queued_for_write[:original].path
         output = Rails.root.join("tmp", "doc-out-"+rand(10000000).to_s(36)+".jpg")
         system("convert -antialias -density 200x200 \"#{input}[0]\" #{output}")
@@ -100,7 +100,7 @@ class Communication < ActiveRecord::Base
     end
   end
 
-  def prepare_shipment(options = {})
+  def send_shipment(options = {})
     filter = {}
     description = "Envoi"
     if options[:mode] == :real
@@ -118,9 +118,10 @@ class Communication < ActiveRecord::Base
       shipment.sendings.create!(:touchable => touchable)
     end
     shipment.total = shipment.sendings.count
+    shipment.save
+    shipment.distribute
     return shipment
   end
-
 
   # def distribute_to(touchable, mode = :all)
   #   mode ||= :all
@@ -408,7 +409,21 @@ class Communication < ActiveRecord::Base
     file = options[:output] || Rails.root.join("tmp", "sending-mail-#{sending.id}.pdf")
     if self.document?
       Prawn::Document.generate(file, :template => self.document.path(:original), :margin => [0, 0, 0, 0]) do |pdf|
-        pdf.text_box sending.coordinate.split(";").join("\r\n"), :at => [mm2pt(105), mm2pt(250)], :width => mm2pt(85),:align => :left
+        address = sending.coordinate.split(";").delete_if{|x| x.blank?}
+        pdf.font_families.update("Inconsolata" => { :normal => Rails.root.join("lib", "fonts", "Inconsolata-Regular.ttf").to_s})
+        font_size = 4
+        margin, at, dims = 2, [108, 250], [82, 30]
+        pdf.font "Inconsolata", :size => mm2pt(font_size)
+        pdf.font_size
+        pdf.fill_color "FFFFFF"
+        pdf.fill do
+          pdf.rounded_rectangle [mm2pt(at[0]-margin), mm2pt(at[1]+margin)], mm2pt(dims[0]+2*margin), mm2pt(dims[1]+2*margin), mm2pt(margin)
+        end
+        pdf.fill_color "000000"
+        pdf.bounding_box([mm2pt(at[0]), mm2pt(at[1])], :width => mm2pt(dims[0]), :height => mm2pt(dims[1])) do
+          pdf.text address.join("\r\n"), :valign => :center
+        end
+        # pdf.text_box address.join("\r\n"), :at => [mm2pt(at[0]), mm2pt(at[1])], :width => mm2pt(dims[0]), :height => mm2pt(dims[1]), :align => :left, :valign => :center
       end
     else
       File.open(file, "wb") do |f|

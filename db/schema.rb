@@ -181,6 +181,7 @@ ActiveRecord::Schema.define(:version => 20121120144737) do
     t.datetime "mail_updated_at"
     t.datetime "created_at",                       :null => false
     t.datetime "updated_at",                       :null => false
+    t.integer  "launcher_id"
   end
 
   add_index "shipments", ["communication_id"], :name => "index_shipments_on_communication_id"

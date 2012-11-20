@@ -17,16 +17,18 @@
 #  mail_updated_at   :datetime
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
+#  launcher_id       :integer
 #
 
 class Shipment < ActiveRecord::Base
   attr_accessible :description
   belongs_to :communication
+  belongs_to :launcher, :class_name => "User"
   has_many :sendings
   has_many :touchables, :through => :sendings
   has_attached_file :mail, {
     :url  => "/admin/shipments/:id/mail/:style.:extension",
-    :path => ":rails_root/private/:class/:id_partition/:attachment/:style.:extension"    
+    :path => ":rails_root/private/:class/:id_partition/:attachment/:style.:extension"
   }
 
   before_validation do

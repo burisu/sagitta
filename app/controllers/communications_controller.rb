@@ -165,7 +165,7 @@ class CommunicationsController < AdminController
     unless params[:only].blank?
       settings[:only] = params[:only].to_sym
     end
-    @communication.prepare_shipment(settings).distribute
+    @communication.send_shipment(settings)
     redirect_to communication_url(@communication)
   end
 

@@ -11,7 +11,7 @@
         =f.input :introduction, :input_html => {:rows => 3, :cols => 80}
         =f.input :conclusion, :input_html => {:rows => 3, :cols => 80}
         =f.input :with_pdf
-      -elsif @communication.newsletter?
+      -elsif @communication.flyer?
         =f.input :flyer, :as => :file
         =f.input :message, :as => :text, :input_html => {:rows => 9, :cols => 80}
         =f.input :unsubscribe_label
