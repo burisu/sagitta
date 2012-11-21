@@ -3,6 +3,9 @@
   =f.input :email
   =f.input :costs, :as => :text, :input_html => {:rows => 3}
   =f.input :canals_priority, :placeholder => Touchable.canals.join(', ')
+  -if current_user.administrator?
+    =f.input :ecofax_number
+    =f.input :ecofax_password, :as => :string
 
   -if current_user.administrator? and params[:password]
     =f.input :password

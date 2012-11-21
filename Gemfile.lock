@@ -95,10 +95,6 @@ GEM
       railties (>= 3.1.0, < 5.0)
       thor (~> 0.14)
     json (1.7.5)
-    launchy (2.1.2)
-      addressable (~> 2.3)
-    letter_opener (0.1.0)
-      launchy (>= 2.0.4)
     libv8 (3.3.10.4)
     mail (2.4.4)
       i18n (>= 0.4.0)
@@ -207,7 +203,6 @@ DEPENDENCIES
   htmlentities
   i18n-complements
   jquery-rails
-  letter_opener
   nokogiri
   paperclip
   pg

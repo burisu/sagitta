@@ -29,6 +29,8 @@
 #  updated_at             :datetime         not null
 #  costs                  :string(255)
 #  canals_priority        :string(255)
+#  ecofax_number          :string(255)
+#  ecofax_password        :string(255)
 #
 
 require 'test_helper'

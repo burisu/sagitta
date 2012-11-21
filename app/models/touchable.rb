@@ -29,7 +29,11 @@ class Touchable < ActiveRecord::Base
         self.key = Communication.generate_key(64)
       end while self.class.find_by_key(self.key)
     end
-    self.coordinate = self.coordinate.split(";").collect{|x| ActiveSupport::Inflector.transliterate(x.strip).upcase}.join(";") if self.canal == "mail"
+    if self.canal == "mail"
+      self.coordinate = self.coordinate.split(";").delete_if{|x| x.blank?}.collect do |x| 
+        ActiveSupport::Inflector.transliterate(x.strip.gsub(/\ +/, ' ')).upcase
+      end.join(";") 
+    end
 
 
     self.search_key = self.canal + "/"

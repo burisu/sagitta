@@ -37,6 +37,8 @@
 #  document_content_type :string(255)
 #  document_file_size    :integer
 #  document_updated_at   :datetime
+#  ecofax_number         :string(255)
+#  ecofax_password       :string(255)
 #
 
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html

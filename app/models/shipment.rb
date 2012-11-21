@@ -52,7 +52,7 @@ class Shipment < ActiveRecord::Base
     if sendings.count > 0
       Distributor.fax_shipment_request(self).deliver
       sendings.update_all({:sent_at => Time.now})
-      self.update_attribute(:dones, self.dones + increment)
+      self.update_attribute(:dones, self.dones + sendings.count)
     end
     
     # Mail all-in-one

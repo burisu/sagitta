@@ -38,6 +38,8 @@
 #  document_content_type :string(255)
 #  document_file_size    :integer
 #  document_updated_at   :datetime
+#  ecofax_number         :string(255)
+#  ecofax_password       :string(255)
 #
 
 class Communication < ActiveRecord::Base
@@ -82,6 +84,13 @@ class Communication < ActiveRecord::Base
   end
 
   before_validation do
+    if self.newsletter? and self.newsletter
+      self.ecofax_number   = self.newsletter.ecofax_number
+      self.ecofax_password = self.newsletter.ecofax_password
+    else
+      self.ecofax_number   = self.client.ecofax_number
+      self.ecofax_password = self.client.ecofax_password
+    end
     if self.document?
       if self.document.queued_for_write[:original]
         input = self.document.queued_for_write[:original].path
@@ -91,6 +100,9 @@ class Communication < ActiveRecord::Base
           self.flyer = f
         end
       end
+    end
+    unless self.newsletter?
+      self.title = self.subject
     end
 
     if self.key.blank?

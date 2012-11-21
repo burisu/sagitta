@@ -54,7 +54,7 @@ class Distributor < ActionMailer::Base
     for piece in @communication.pieces
       attachments[piece.name.parameterize+".pdf"] = File.read(piece.document.path(:original))
     end
-    settings = {:to => "fax@ecofax.fr", :from => "fax-reply@agrimail.fr", :subject => @communication.newsletter.ecofax_number}
+    settings = {:to => "fax@ecofax.fr", :from => "fax-reply@agrimail.fr", :subject => @communication.ecofax_number}
     settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
     mail(settings)
   end
@@ -66,7 +66,7 @@ class Distributor < ActionMailer::Base
     for piece in @communication.pieces
       attachments[piece.name.parameterize+".pdf"] = File.read(piece.document.path(:original))
     end
-    settings = {:to => "fax@ecofax.fr", :from => "fax-reply@agrimail.fr", :subject => @communication.newsletter.ecofax_number}
+    settings = {:to => "fax@ecofax.fr", :from => "fax-reply@agrimail.fr", :subject => @communication.ecofax_number}
     settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
     mail(settings)
   end

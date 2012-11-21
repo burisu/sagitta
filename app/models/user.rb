@@ -29,6 +29,8 @@
 #  updated_at             :datetime         not null
 #  costs                  :string(255)
 #  canals_priority        :string(255)
+#  ecofax_number          :string(255)
+#  ecofax_password        :string(255)
 #
 
 class User < ActiveRecord::Base
@@ -39,7 +41,7 @@ class User < ActiveRecord::Base
          :recoverable, :rememberable, :trackable, :validatable
 
   # Setup accessible (or protected) attributes for your model
-  attr_accessible :email, :password, :password_confirmation, :remember_me, :full_name, :administrator, :costs, :canals_priority
+  attr_accessible :email, :password, :password_confirmation, :remember_me, :full_name, :administrator, :costs, :canals_priority, :ecofax_number, :ecofax_password
   
   has_many :communications, :foreign_key => :client_id, :dependent => :delete_all
   has_many :newsletters, :foreign_key => :client_id, :dependent => :delete_all, :order => :name

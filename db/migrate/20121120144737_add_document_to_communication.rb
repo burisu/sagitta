@@ -5,9 +5,21 @@ class AddDocumentToCommunication < ActiveRecord::Migration
     add_attachment :communications, :document
 
     add_column :shipments, :launcher_id, :integer
+
+    add_column :communications, :ecofax_number, :string
+    add_column :communications, :ecofax_password, :string
+
+    add_column :users, :ecofax_number, :string
+    add_column :users, :ecofax_password, :string
   end
 
   def down
+    remove_column :users, :ecofax_password
+    remove_column :users, :ecofax_number
+
+    remove_column :communications, :ecofax_password
+    remove_column :communications, :ecofax_number
+
     remove_column :shipments, :launcher_id
 
     remove_attachment :communications, :document
