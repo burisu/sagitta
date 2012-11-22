@@ -178,7 +178,10 @@ module ApplicationHelper
     # The name of tab use I18n searching in :
     #   - labels.<tabbox_id>_tabbox.<tab_name>
     #   - labels.<tab_name>
-    def tab(name, label, options={}, &block)
+    def tab(name, *args, &block)
+      options = {}
+      options = args.delete_at(-1) if args[-1].is_a?(Hash)
+      label = args[0] || name.to_s.humanize
       raise ArgumentError.new("No given block") unless block_given?
       @tabs << {:name => name, :label => label, :options => options, :block => block}
       # , :index => (@sequence*1).to_s(36)

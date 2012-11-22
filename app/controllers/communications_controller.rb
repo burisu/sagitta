@@ -53,6 +53,12 @@ class CommunicationsController < AdminController
           @communication.name.to_s.succ! if @communication.name.to_s.match(/\d+$/)
         end
       end
+    elsif @communication.document?
+      @communication.subject = "[NAME]"
+    end
+    if c = @communication.client
+      @communication.sender_email = c.email
+      @communication.sender_label = c.name
     end
     respond_to do |format|
       format.html { render_restfully_form(:multipart => true) }
@@ -121,22 +127,38 @@ class CommunicationsController < AdminController
   def populate
     @communication = Communication.find(params[:id])
     if request.post?
-      source = ""
+      clist = []
       if params[:import_file].to_i > 0
         name = params[:touchables_file].original_filename
         path = Rails.root.join("tmp", "codes-import.#{name}.#{rand.to_s[2..16].to_i.to_s(36)}.csv")
         File.open(path, "wb") { |f| f.write(params[:touchables_file].read) }
-        File.open(path, "rb") { |f| source = f.read }
-        File.delete(path)        
+        lines = CSV.read(path)
+        header = lines.shift
+        indexes = {}
+        header.each_with_index do |name, index|
+          indexes[name.to_s.strip.downcase] ||= index unless name.blank?
+        end
+        wanted = Touchable.canals
+        indexes.delete_if{|k, v| !wanted.include?(k)}
+        unless indexes.size == wanted.size
+          flash.now[:error] = "Fichier invalide : des colonnes sont manquantes (#{(wanted-indexes.keys).inspect})"
+          return
+        end
+        clist = lines.collect do |line|
+          wanted.inject({}) do |hash, canal|
+            hash[canal] = line[indexes[canal]]
+            hash
+          end
+        end
       else
         source = params[:touchables_list].to_s        
+        clist = source.to_s.split(/\"*\s*\n+\s*\"*/).compact.collect{|x| x.to_s.mb_chars.downcase}.uniq.collect do |line|
+          x = line.split(/\,/)
+          x[2] ||= nil
+          {"email" => x[0], "fax" => x[1], "mail" => x[2..-1].join(',')}
+        end.uniq
+        clist.delete_at(0) if params[:header]
       end
-      clist = source.to_s.split(/\"*\s*\n+\s*\"*/).compact.collect{|x| x.to_s.mb_chars.downcase}.uniq.collect do |line|
-        x = line.split(/\,/)
-        x[2] ||= nil
-        {"email" => x[0], "fax" => x[1], "mail" => x[2..-1].join(',')}
-      end.uniq
-      clist.delete_at(0) if params[:header]
       test_purpose = (params[:test].to_i == 1 ? true : false)
       code  = "for infos in clist\n"
       code << "  canal = (" + @communication.client.canals_priority_array.collect do |canal| 

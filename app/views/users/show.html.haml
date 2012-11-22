@@ -6,25 +6,27 @@
   -if @user == current_user or current_user.administrator
     =link_to("Mettre à jour ses informations", edit_user_url(@user))
 
-%h2 E-mailings
-.btn-group
-  =link_to("Nouveau flyer", new_communication_url(:client_id => @user.id, :nature => :flyer), :class => :btn)
-  =link_to("Nouveau document", new_communication_url(:client_id => @user.id, :nature => :document), :class => :btn)
-.btn-group
-  =link_to("Nouvelle newsletter", new_communication_url(:client_id => @user.id, :nature => :newsletter), :class => "btn")
-  %button.btn.dropdown-toggle{"data-toggle" => :dropdown}
-    %span.caret
-  %ul.dropdown-menu
-    -for newsletter in @user.newsletters
-      %li=link_to(newsletter.name, new_communication_url(:client_id => @user.id, :newsletter_id => newsletter.id, :nature => :newsletter))
-=list :communications
+=tabbox(:user) do |t|
+  -t.tab(:communications) do
+    .btn-toolbar
+      .btn-group
+        =link_to("Nouveau flyer", new_communication_url(:client_id => @user.id, :nature => :flyer), :class => :btn)
+        =link_to("Nouveau document", new_communication_url(:client_id => @user.id, :nature => :document), :class => :btn)
+      .btn-group
+        =link_to("Nouvelle newsletter", new_communication_url(:client_id => @user.id, :nature => :newsletter), :class => "btn")
+        %button.btn.dropdown-toggle{"data-toggle" => :dropdown}
+          %span.caret
+        %ul.dropdown-menu
+          -for newsletter in @user.newsletters
+            %li=link_to(newsletter.name, new_communication_url(:client_id => @user.id, :newsletter_id => newsletter.id, :nature => :newsletter))
+    =list :communications
+  
+  -t.tab(:newsletters) do
+    .btn-toolbar
+      .btn-group=link_to("Nouvelle newsletter", new_newsletter_url(:client_id => @user.id), :class => :btn)
+    =list :newsletters
 
-%h2 Newsletters
-.toolbar
-  =link_to("Nouvelle newsletter", new_newsletter_url(:client_id => @user.id))
-=list :newsletters
-
-%h2 Intouchables
--#.toolbar
-  =link_to("Nouvel intouchable", new_untouchable_url(:client_id => @user.id))
-=list :untouchables
+  -t.tab(:untouchables, "Intouchables") do
+    .btn-toolbar
+      .btn-group=link_to("Nouvel intouchable", new_untouchable_url(:client_id => @user.id), :class => :btn)
+    =list :untouchables

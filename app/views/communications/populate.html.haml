@@ -13,13 +13,14 @@
   #imp-file.control-group
     %label.control-label{:for => "touchables_file"}="Fichier"
     .controls=file_field_tag("touchables_file")
-  #imp-list.control-group
-    %label.control-label{:for => "touchables_list"}="Liste (saisie directe)"
-    .controls=text_area_tag("touchables_list", params[:touchables_list], :rows => 10, :placeholder => "alain.dupont@gmail.com,,Alain DUPONT;17 rue de la République;33000 BORDEAUX")
-  .control-group
-    %label.control-label{:for => "header"}="Ne pas prendre en compte la première ligne"
-    .controls
-      %label.checkbox=check_box_tag("header", "1", params[:header], :id => "header")
+  #imp-list
+    .control-group
+      %label.control-label{:for => "touchables_list"}="Liste (saisie directe)"
+      .controls=text_area_tag("touchables_list", params[:touchables_list], :rows => 10, :placeholder => "alain.dupont@gmail.com,,Alain DUPONT;17 rue de la République;33000 BORDEAUX")
+    .control-group
+      %label.control-label{:for => "header"}="Ne pas prendre en compte la première ligne"
+      .controls
+        %label.checkbox=check_box_tag("header", "1", params[:header], :id => "header")
   .control-group
     %label.control-label{:for => "test"}="Pour les tests avant tout"
     .controls

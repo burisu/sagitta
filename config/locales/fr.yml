@@ -3,6 +3,9 @@ fr:
     canal: Canal
     coordinate: Coordonnée
     name: Nom
+    sender_email: "Adresse e-mail de l'expéditeur"
+    sender_label: "Nom de l'expéditeur (E-mail)"
+    reply_to_email: "Répondre à (E-mail)"
     subject: Sujet
     planned_on: Date
   labels:

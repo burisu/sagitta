@@ -131,7 +131,7 @@ class Communication < ActiveRecord::Base
     end
     shipment.total = shipment.sendings.count
     shipment.save
-    shipment.distribute
+    shipment.delay.distribute
     return shipment
   end
 
