@@ -195,6 +195,7 @@ DEPENDENCIES
   coffee-rails (~> 3.2.1)
   compass-rails
   css_parser
+  daemons
   delayed_job_active_record
   devise
   foreman

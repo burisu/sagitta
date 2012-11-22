@@ -25,6 +25,7 @@ gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
 gem 'htmlentities'
 gem 'delayed_job_active_record'
+gem 'daemons'
 gem 'foreman'
 gem 'thin'
 
