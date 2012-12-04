@@ -20,3 +20,6 @@
           =link_to(shipment.mail.url) do
             %i.icon-file
 =h("Dernière mise à jour : ") + Time.now.l
+
+-if Delayed::Job.count > 0
+  .current=link_to("labels.x_current_jobs".t(:count => Delayed::Job.count), delayed_jobs_url(:redirect => request.path))

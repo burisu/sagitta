@@ -19,9 +19,6 @@ class Distributor < ActionMailer::Base
           attachments.inline[@articles[article.id]] = File.read(article.logo.path(:web))
         end
       end
-      for piece in @communication.pieces
-        attachments[piece.name.parameterize+".pdf"] = File.read(piece.document.path(:original))
-      end
       if @communication.header.file?
         @header = unique_image_name
         attachments.inline[@header] = File.read(@communication.header.path(:web))
@@ -31,6 +28,9 @@ class Distributor < ActionMailer::Base
       if @communication.flyer.file?
         attachments.inline[@communication.flyer.original_filename] = File.read(@communication.flyer.path(:web))
       end
+    end
+    for piece in @communication.pieces
+      attachments[piece.name.parameterize+".pdf"] = File.read(piece.document.path(:original))
     end
     if @communication.document?
       attachments[@communication.document.original_filename] = File.read(@communication.document.path(:original))

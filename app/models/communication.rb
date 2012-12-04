@@ -70,7 +70,7 @@ class Communication < ActiveRecord::Base
   validates_presence_of :nature
   validates_presence_of :newsletter, :if => Proc.new{|c| c.newsletter? }
   validates_attachment_presence :document, :if => Proc.new{|c| c.document? }
-  validates_attachment_content_type :document, :content_type => ["application/pdf", "application/x-pdf"], :if => Proc.new{|c| c.document? }
+  # validates_attachment_content_type :document, :content_type => ["application/pdf", "application/x-pdf"], :if => Proc.new{|c| c.document? }
   validates_attachment_presence :flyer, :if => Proc.new{|c| c.flyer? }
   validates_inclusion_of :nature, :in => @@natures
 
@@ -131,7 +131,11 @@ class Communication < ActiveRecord::Base
     end
     shipment.total = shipment.sendings.count
     shipment.save
-    shipment.delay.distribute
+    if Rails.env.development?
+      shipment.distribute
+    else
+      shipment.delay.distribute
+    end
     return shipment
   end
 

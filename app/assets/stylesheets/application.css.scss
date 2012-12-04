@@ -151,6 +151,12 @@ input.large {
 }
 
 
+.pull-right { 
+  .btn-toolbar { 
+    margin-top: 0;
+  }
+}
+
 .toolbar { 
   background: rgba(#FFF, 0.2);
   padding: 1px;
@@ -226,3 +232,24 @@ table {
   }
 }
 
+.job {
+  background: #EEE;
+  padding: 1em;
+  .lab { 
+    font-variant: small-caps;
+    color: #888;
+    @include inline-block;
+    width: 200px;
+  }
+  .val { font-weight: bold; }
+  pre.code { 
+    max-height: 15em;
+    overflow: auto;
+    border-width: 0px;
+    background: transparent;
+    color: #930;
+    padding: 1em;
+    @include box-shadow(0 0 20px rgba(#000, 0.22) inset);
+  }
+  margin-bottom: 3em;
+}

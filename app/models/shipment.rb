@@ -40,21 +40,7 @@ class Shipment < ActiveRecord::Base
     self.update_attribute(:started_at, Time.now)
     self.update_attribute(:state, "sending")
     self.update_attribute(:dones, 0)
-    # Email one-by-one
-    self.sendings.where(:canal => "email").find_each do |sending|
-      Distributor.communication(sending.touchable).deliver
-      sending.update_attribute(:sent_at, Time.now)
-      self.update_attribute(:dones, self.dones + 1)
-    end
-    
-    # Fax all-in-one
-    sendings = self.sendings.where(:canal => "fax")
-    if sendings.count > 0
-      Distributor.fax_shipment_request(self).deliver
-      sendings.update_all({:sent_at => Time.now})
-      self.update_attribute(:dones, self.dones + sendings.count)
-    end
-    
+
     # Mail all-in-one
     if self.sendings.where(:canal => "mail").count > 0
       # Build each letter
@@ -79,6 +65,20 @@ class Shipment < ActiveRecord::Base
       # TODO: Notify user that it's finished
     end
 
+    # Fax all-in-one
+    sendings = self.sendings.where(:canal => "fax")
+    if sendings.count > 0
+      Distributor.fax_shipment_request(self).deliver
+      sendings.update_all({:sent_at => Time.now})
+      self.update_attribute(:dones, self.dones + sendings.count)
+    end
+    
+    # Email one-by-one
+    self.sendings.where(:canal => "email").find_each do |sending|
+      Distributor.communication(sending.touchable).deliver
+      sending.update_attribute(:sent_at, Time.now)
+      self.update_attribute(:dones, self.dones + 1)
+    end
     
     self.update_attribute(:state, "done")
     self.update_attribute(:stopped_at, Time.now)

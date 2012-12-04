@@ -40,6 +40,9 @@ Sagitta::Application.routes.draw do
     resources :touchables, :except => [:show, :index, :new, :create]
     resources :untouchables, :except => [:show, :index]
     match "/tab/:id" => "admin#toggle_tab", :via => :get
+    namespace :delayed do
+      resources :jobs, :only => [:index, :destroy]
+    end
     root :to => "admin#index", :via => :get
   end
 

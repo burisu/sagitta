@@ -22,6 +22,7 @@ class Touchable < ActiveRecord::Base
   attr_accessible :canal, :coordinate, :test
   validates_inclusion_of :canal, :in => @@canals
   validates_uniqueness_of :search_key, :scope => :communication_id
+  validates_format_of :coordinate, :with => /\@/, :if => Proc.new {|x| x.email? }
 
   before_validation do
     if self.key.blank?
@@ -34,8 +35,6 @@ class Touchable < ActiveRecord::Base
         ActiveSupport::Inflector.transliterate(x.strip.gsub(/\ +/, ' ')).upcase
       end.join(";") 
     end
-
-
     self.search_key = self.canal + "/"
     if self.canal == "mail"
       self.search_key += self.coordinate.split(";").collect{|x| x.strip.parameterize}.join(";")
@@ -46,6 +45,14 @@ class Touchable < ActiveRecord::Base
 
   def stroke!
     self.communication.client.untouchables.create!(:email => self.email)
+  end
+
+  # Defines canal testors
+  @@canals.each do |canal|
+    code  = "def email?\n"
+    code << "  return (self.canal == '#{canal}' ? true : false)\n"
+    code << "end"
+    class_eval(code)
   end
 
 end

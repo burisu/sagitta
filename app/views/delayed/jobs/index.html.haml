@@ -1,0 +1,33 @@
+-# 1.delay.div(0)
+
+=toolbar do
+  =tool("Retour", params[:redirect] || users_url)
+
+-page_title("labels.x_current_jobs".t(:count => Delayed::Job.count))
+
+-for job in Delayed::Job.reorder("id")
+  .job
+    .pull-right=link_to("Supprimer", delayed_job_url(job, :redirect => params[:redirect]), :method => :delete, "data-confirm" => "Are you sure ?")
+    %h3="Travail ##{job.id} (#{job.attempts}&times;)".html_safe
+    %span.lab Handler
+    %pre.code=job.handler.to_s
+    %span.lab Dernière erreur
+    %pre.code=job.last_error.to_s
+    .meta
+      %span.lab Lancé le
+      %span.val=(job.run_at.nil? ? '—' : job.run_at.l)
+    .meta
+      %span.lab Verrouillé le 
+      %span.val=(job.locked_at.nil? ? '—' : job.locked_at.l)
+    .meta
+      %span.lab Verrouillé par
+      %span.val=job.locked_by
+    .meta
+      %span.lab Échoué le
+      %span.val=(job.failed_at.nil? ? '—' : job.failed_at.l)
+    .meta
+      %span.lab Queue
+      %span.val=job.queue
+    .meta
+      %span.lab Priorité
+      %span.val=job.priority
