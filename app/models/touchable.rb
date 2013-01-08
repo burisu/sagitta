@@ -22,7 +22,7 @@ class Touchable < ActiveRecord::Base
   attr_accessible :canal, :coordinate, :test
   validates_inclusion_of :canal, :in => @@canals
   validates_uniqueness_of :search_key, :scope => :communication_id
-  validates_format_of :coordinate, :with => /\@/, :if => Proc.new {|x| x.email? }
+  # validates_format_of :coordinate, :with => /\@/, :if => Proc.new {|x| x.email? }
 
   before_validation do
     if self.key.blank?

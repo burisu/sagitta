@@ -57,14 +57,14 @@
           =tool("Ajouter une pièce", new_piece_url(:communication_id => @communication.id), :icon => "file")  
       -if @communication.alone_pieces.count > 0
         .pieces=render :partial => "pieces/piece", :collection => @communication.alone_pieces
-      .flyer=image_tag(@communication.flyer.url(:web))    
+      =link_to(image_tag(@communication.flyer.url(:web)), @communication.target_url, :class => :flyer)
     -elsif @communication.flyer?
       .pull-right
         =toolbar do
           =tool("Ajouter une pièce", new_piece_url(:communication_id => @communication.id), :icon => "file")  
       -if @communication.alone_pieces.count > 0
         .pieces=render :partial => "pieces/piece", :collection => @communication.alone_pieces
-      .flyer=image_tag(@communication.flyer.url(:web))
+      =link_to(image_tag(@communication.flyer.url(:web)), @communication.target_url, :class => :flyer)
   
   -t.tab(:details, "Détails") do
     -fields = [:name, :planned_on, :sender_email, :sender_label, :reply_to_email, :subject, :target_url]

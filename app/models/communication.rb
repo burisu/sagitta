@@ -44,8 +44,9 @@
 
 class Communication < ActiveRecord::Base
   include Prawn::Measurements
-
-  @@natures = ["flyer", "newsletter", "document"]
+  # extend Enumerize
+  @@natures = %w(flyer newsletter document)
+  # enumerize :nature, :in => [:flyer, :newsletter, :document], :default => :document
   attr_accessible :client_id, :name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message, :flyer, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :newsletter_id, :introduction, :conclusion, :title, :with_pdf, :document, :nature
   belongs_to :client, :class_name => "User", :counter_cache => true
   belongs_to :newsletter
@@ -68,11 +69,11 @@ class Communication < ActiveRecord::Base
   }
 
   validates_presence_of :nature
-  validates_presence_of :newsletter, :if => Proc.new{|c| c.newsletter? }
-  validates_attachment_presence :document, :if => Proc.new{|c| c.document? }
-  # validates_attachment_content_type :document, :content_type => ["application/pdf", "application/x-pdf"], :if => Proc.new{|c| c.document? }
-  validates_attachment_presence :flyer, :if => Proc.new{|c| c.flyer? }
   validates_inclusion_of :nature, :in => @@natures
+  validates_presence_of :newsletter, :if => :newsletter?
+  validates_attachment_presence :document, :if => Proc.new{ |c| c.document? }
+  # validates_attachment_content_type :document, :content_type => ["application/pdf", "application/x-pdf"], :if => :document?
+  validates_attachment_presence :flyer, :if => Proc.new{ |c| c.flyer? }
 
   delegate :global_style, :print_style, :header, :footer, :to => :newsletter
 
@@ -87,17 +88,17 @@ class Communication < ActiveRecord::Base
     if self.newsletter? and self.newsletter
       self.ecofax_number   = self.newsletter.ecofax_number
       self.ecofax_password = self.newsletter.ecofax_password
-    else
+    elsif self.client
       self.ecofax_number   = self.client.ecofax_number
       self.ecofax_password = self.client.ecofax_password
     end
     if self.document?
       if self.document.queued_for_write[:original]
         input = self.document.queued_for_write[:original].path
-        output = Rails.root.join("tmp", "doc-out-"+rand(10000000).to_s(36)+".jpg")
+        output = Rails.root.join("tmp", "doc-out-" + rand(10000000).to_s(36) + ".jpg")
         system("convert -antialias -density 200x200 \"#{input}[0]\" #{output}")
-        File.open(output, "rb") do |f|
-          self.flyer = f
+        File.open(output, "rb") do |f| 
+          self.flyer.assign(f)
         end
       end
     end
@@ -466,17 +467,16 @@ class Communication < ActiveRecord::Base
     return c
   end
 
-
   def newsletter?
-    (self.nature == "newsletter" ? true : false)
+    (self.nature.to_s == "newsletter" ? true : false)
   end
 
   def flyer?
-    (self.nature == "flyer" ? true : false)
+    (self.nature.to_s == "flyer" ? true : false)
   end
 
   def document?
-    (self.nature == "document" ? true : false)
+    (self.nature.to_s == "document" ? true : false)
   end
 
 end

@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.9'
+gem 'rails', '3.2.10'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -8,7 +8,7 @@ gem 'rails', '3.2.9'
 gem 'pg'
 gem 'haml'
 gem 'devise'
-gem 'paperclip'
+gem 'paperclip', '~> 3.3.1'
 gem 'active-list'
 gem 'formize'
 gem 'simple_form'
@@ -16,6 +16,7 @@ gem 'i18n-complements'
 gem 'rails-i18n'
 gem 'acts_as_list'
 gem 'prawn'
+# gem 'enumerize'
 gem 'nokogiri'
 gem 'css_parser'
 # gem 'actionmailer_inline_css'
@@ -38,7 +39,7 @@ group :assets do
   gem 'bootstrap-sass'
 
   # See https://github.com/sstephenson/execjs#readme for more supported runtimes
-  gem 'therubyracer', :platforms => :ruby
+  gem 'therubyracer', '~> 0.10.2', :platforms => :ruby
 
   gem 'uglifier', '>= 1.0.3'
 end

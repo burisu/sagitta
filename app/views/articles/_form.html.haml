@@ -1,4 +1,4 @@
-%h1="Article pour #{@article.newsletter.name}"
+-page_title "Article pour #{@article.newsletter.name}"
 =simple_fields_for @article do |f|
   =f.input :title, :input_html => {:class => "large"}
   =f.input :content, :input_html => {:rows => @article.content.to_s.split(/\n/).inject(0){|sum, line| sum + (line.size/80) + 1 } + 1, :cols => 80}

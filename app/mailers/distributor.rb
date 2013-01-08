@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class Distributor < ActionMailer::Base
   add_template_helper(ApplicationHelper)
 
@@ -37,11 +38,12 @@ class Distributor < ActionMailer::Base
     end
     settings = {:to => @touchable.coordinate, :from => @communication.from, :subject => @communication.interpolate(@communication.subject)}
     settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
+    settings[:charset] = "ISO-8859-15"
     mail(settings) do |format|
       unless @communication.document?
-        format.text("Content-type" => "text/plain; charset=utf8")
+        format.text  { normalize(render("communication")) }
       end
-      format.html("Content-type" => "text/html; charset=utf8")
+      format.html { normalize(render("communication")) }
     end
   end
 
@@ -76,6 +78,15 @@ class Distributor < ActionMailer::Base
 
   def unique_image_name(extension = :jpg)
     return rand.to_s[2..-1].to_i.to_s(36)+Time.now.to_i.to_s(36)+"."+extension.to_s
+  end
+
+
+  def normalize(string)
+    string.gsub!("–", "-")
+    string.gsub!("—", "-")
+    string.gsub!("’", "'")
+    string.encode!("ISO-8859-15")
+    return string
   end
 
 end
