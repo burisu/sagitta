@@ -84,8 +84,9 @@ class Distributor < ActionMailer::Base
   def normalize(string)
     string.gsub!("–", "-")
     string.gsub!("—", "-")
+    string.gsub!("‒", "-")
     string.gsub!("’", "'")
-    string.encode!("ISO-8859-15")
+    string.encode!("ISO-8859-15", :undef => :replace)
     return string
   end
 
