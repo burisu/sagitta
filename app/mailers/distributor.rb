@@ -36,7 +36,7 @@ class Distributor < ActionMailer::Base
     if @communication.document?
       attachments[@communication.document.original_filename] = File.read(@communication.document.path(:original))
     end
-    settings = {:to => @touchable.coordinate, :from => @communication.from, :subject => @communication.interpolate(@communication.subject)}
+    settings = {:to => @touchable.coordinate, :from => @communication.from, :subject => normalize(@communication.interpolate(@communication.subject))}
     settings[:reply_to] = @communication.reply_to_email unless @communication.reply_to_email.blank?
     settings[:charset] = "ISO-8859-15"
     mail(settings) do |format|
