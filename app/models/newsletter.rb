@@ -18,10 +18,11 @@
 #  global_style        :text
 #  print_style         :text
 #  with_pdf            :boolean          default(FALSE), not null
+#  page_margins        :string(255)
 #
 
 class Newsletter < ActiveRecord::Base
-  attr_accessible :client_id, :name, :ecofax_number, :ecofax_password, :header, :introduction, :conclusion, :footer, :global_style, :print_style, :with_pdf
+  attr_accessible :client_id, :name, :ecofax_number, :ecofax_password, :header, :introduction, :conclusion, :footer, :global_style, :print_style, :with_pdf, :page_margins
   belongs_to :client, :class_name => "User"
   has_attached_file :header, {
     :styles => { :web => ["720x2000>", :jpg], :medium => "96x96#", :thumb => "48x48#" },

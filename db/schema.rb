@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121120144737) do
+ActiveRecord::Schema.define(:version => 20130124125127) do
 
   create_table "articles", :force => true do |t|
     t.integer  "communication_id",  :null => false
@@ -136,6 +136,7 @@ ActiveRecord::Schema.define(:version => 20121120144737) do
     t.text     "global_style"
     t.text     "print_style"
     t.boolean  "with_pdf",            :default => false, :null => false
+    t.string   "page_margins"
   end
 
   add_index "newsletters", ["client_id"], :name => "index_newsletters_on_client_id"

@@ -18,6 +18,7 @@
 #  global_style        :text
 #  print_style         :text
 #  with_pdf            :boolean          default(FALSE), not null
+#  page_margins        :string(255)
 #
 
 require 'test_helper'

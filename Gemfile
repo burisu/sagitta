@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.10'
+gem 'rails', '3.2.11'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -48,6 +48,7 @@ gem 'jquery-rails'
 
 group :development do
   # gem "letter_opener"
+  gem 'quiet_assets'
   gem "annotate" #, :git => "https://github.com/ctran/annotate_models.git"
   gem 'rack-mini-profiler'
 end

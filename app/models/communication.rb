@@ -417,7 +417,17 @@ class Communication < ActiveRecord::Base
         data = f.read
       end
     else
-      data = WickedPdf.new.pdf_from_string(self.to_html(:print, options))
+      pdf_options = {}
+      if self.newsletter
+        margins = (self.newsletter.page_margins || '1').split(/\s+/).map(&:to_f)
+        margins[0] ||= 1
+        margins[1] ||= margins[0]
+        margins[2] ||= margins[0]
+        margins[3] ||= margins[1]
+        pdf_options[:margin] = {:top => margins[0], :right => margins[1], :bottom => margins[2], :left => margins[3]}
+      end
+      # raise pdf_options.inspect
+      data = WickedPdf.new.pdf_from_string(self.to_html(:print, options), pdf_options)
     end
     return data
   end
