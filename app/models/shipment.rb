@@ -75,7 +75,7 @@ class Shipment < ActiveRecord::Base
     
     # Email one-by-one
     self.sendings.where(:canal => "email").find_each do |sending|
-      Distributor.communication(sending.touchable).deliver
+      Distributor.communication(sending).deliver
       sending.update_attribute(:sent_at, Time.now)
       self.update_attribute(:dones, self.dones + 1)
     end

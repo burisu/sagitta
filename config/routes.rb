@@ -47,6 +47,8 @@ Sagitta::Application.routes.draw do
   end
 
   match 'desabonnement/:key' => "home#unsubscribe", :as => :unsubscribe, :via => :get
-  match ':key' => "home#show",  :as => :message
+  match 'message/:key' => "home#show", :as => :message
+  match 'target/:key' => "home#target", :as => :target
+  match 'opening/:key' => "home#opening", :as => :opening
   root :to => "home#index"
 end

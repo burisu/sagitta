@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.11'
+gem 'rails', '3.2.12'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -16,7 +16,7 @@ gem 'i18n-complements'
 gem 'rails-i18n'
 gem 'acts_as_list'
 gem 'prawn'
-# gem 'enumerize'
+gem 'enumerize'
 gem 'nokogiri'
 gem 'css_parser'
 # gem 'actionmailer_inline_css'

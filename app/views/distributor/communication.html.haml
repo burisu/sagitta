@@ -35,6 +35,7 @@
               #conclusion=beautify(@communication.conclusion)
             -unless @communication.footer.blank?
               #footer=beautify(@communication.footer)
+      =image_tag(@opening_url)
 -else
   %html{:style => "background: #EEE"}
     %body{:style => "background: #EEE"}
@@ -42,6 +43,7 @@
         -link_style = "text-align: center; margin: 8px auto; display: block; border: none; font-size: 11px; "
         -unless @communication.unreadable_label.blank?
           %a{:style => link_style, :href => @message_url}=@communication.unreadable_label
-        %a{:style => link_style, :href => @communication.target_url}=image_tag attachments[@communication.flyer.original_filename].url
+        %a{:style => link_style, :href => @target_url}=image_tag attachments[@communication.flyer.original_filename].url
         -unless @communication.unsubscribe_label.blank?
           %a{:style => link_style, :href => @unsubscribe_url}=@communication.unsubscribe_label
+      =image_tag(@opening_url)

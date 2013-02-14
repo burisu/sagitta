@@ -108,3 +108,24 @@
 
   -t.tab(:shipments, "Envois", {"data-refresh-with" => communication_url(@communication, :tab => :shipments), "data-refresh-every" => "4000"}) do
     =render :partial => "shipments"
+
+  -t.tab(:stats, "Statistiques") do
+    %table.table.table-striped.table-bordered
+      %tr
+        %th Statistique
+        %th Valeur
+      %tr
+        %td Nombre d'envois e-mails
+        %td.dec=@communication.sendings.where(:canal => :email).count
+      %tr
+        %td Nombre d'ouvertures d'e-mails détectées (fonctionne en mode HTML avec les images seulement)
+        %td.dec=@communication.opening_effects.count(:sending_id, :distinct => true)
+      %tr
+        %td Nombre de clics uniques "Cible"
+        %td.dec=@communication.target_click_effects.count(:sending_id, :distinct => true)
+      %tr
+        %td Nombre de clics uniques "Message illisible"
+        %td.dec=@communication.page_click_effects.count(:sending_id, :distinct => true)
+      %tr
+        %td Nombre de clics uniques "Désinscription"
+        %td.dec=@communication.unsubscribe_effects.count(:sending_id, :distinct => true)

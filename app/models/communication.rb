@@ -52,10 +52,14 @@ class Communication < ActiveRecord::Base
   belongs_to :newsletter
   has_many :articles, :dependent => :delete_all, :order => :position
   has_many :effects, :dependent => :delete_all
+  for nature in Effect.nature.values
+    has_many "#{nature}_effects", :class_name => "Effect", :conditions => {:nature => nature}
+  end
   has_many :pieces, :dependent => :destroy
   has_many :alone_pieces, :class_name => "Piece", :conditions => "article_id IS NULL"
   has_many :touchables, :dependent => :delete_all, :order => "canal, coordinate"
   has_many :testables, :class_name => "Touchable", :dependent => :delete_all, :order => :email, :conditions => {:test => true}
+  has_many :sendings
   has_many :shipments, :order => "started_at DESC"
   has_many :active_shipments, :conditions => {:state => "sending"}, :class_name => "Shipment", :order => "started_at DESC"
   has_attached_file :flyer, {

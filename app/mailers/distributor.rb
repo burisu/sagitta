@@ -4,11 +4,15 @@ class Distributor < ActionMailer::Base
 
   # NOTE: Letter_opener does not work with attachments...
 
-  def communication(touchable, options = {})
-    @touchable = touchable
+  def communication(sending, options = {})
+    host = (Rails.env.development? ? "localhost:3000" : "agrimail.fr")
+    @sending       = sending
+    @touchable     = @sending.touchable
     @communication = @touchable.communication
-    @message_url = message_url(@communication.key, :host => "agrimail.fr")
-    @unsubscribe_url = unsubscribe_url(@touchable.key, :host => "agrimail.fr")
+    @message_url     = message_url(@sending.key,     :host => host)
+    @target_url      = target_url(@sending.key,      :host => host)
+    @opening_url     = opening_url(@sending.key,     :host => host)
+    @unsubscribe_url = unsubscribe_url(@sending.key, :host => host)
     if @communication.newsletter
       if @communication.with_pdf
         attachments[@communication.interpolate(@communication.subject).parameterize+".pdf"] = @communication.to_pdf
