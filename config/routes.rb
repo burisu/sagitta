@@ -40,10 +40,15 @@ Sagitta::Application.routes.draw do
     resources :touchables, :except => [:show, :index, :new, :create]
     resources :untouchables, :except => [:show, :index]
     match "/tab/:id" => "admin#toggle_tab", :via => :get
+    namespace :delayed do
+      resources :jobs, :only => [:index, :destroy]
+    end
     root :to => "admin#index", :via => :get
   end
 
   match 'desabonnement/:key' => "home#unsubscribe", :as => :unsubscribe, :via => :get
-  match ':key' => "home#show",  :as => :message
+  match 'message/:key' => "home#show", :as => :message
+  match 'target/:key' => "home#target", :as => :target
+  match 'opening/:key' => "home#opening", :as => :opening
   root :to => "home#index"
 end

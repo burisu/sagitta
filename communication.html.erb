@@ -1,0 +1,60 @@
+<% if @communication.newsletter %>
+<html>
+  <head>
+    <title><%=textize(@communication.subject)-%></title>
+    <style type="text/css"><%=@communication.style(:web)-%></style>
+  </head>
+  <body>
+    <% width = @communication.header.styles[:web].geometry.split('x')[0] -%>
+    <table id="page" style="margin: 0 auto">
+      <% if @communication.header.file? -%>
+        <tr><td width="<%= width -%>"><%= image_tag(attachments[@header].url) -%></td></tr>
+      <% end -%>
+      <tr><td width="<%= width -%>" align="right"><h1><%= beautify(@communication.full_title) -%></h1></td></tr>
+      <tr><td width="<%= width -%>">
+        <% unless @communication.introduction.blank? -%>
+          <div id="introduction"><%= beautify(@communication.introduction) -%></div>
+        <% end -%>
+        <% if @communication.articles.count > 0 -%>
+          <div id="articles">
+            <% for article in @communication.articles -%>
+              <div class="article article-<%= article.rubric_id -%>">
+                <%= image_tag(attachments[@articles[article.id]].url) if @articles[article.id] -%>
+                <h2><%= beautify(article.title) -%></h2>
+                <div class="content"><%= beautify(article.content) -%></div>
+                <% unless article.readmore_url.blank? -%>
+                  <div class="readmore"><%= link_to(article.readmore_label+"...", article.readmore_url) -%></div>
+                <% end -%>
+              </div>
+            <% end -%>
+          </div>
+        <% end -%>
+      </td></tr>
+      <tr><td width="<%= width -%>" height="10"></td></tr>
+      <tr><td width="<%= width -%>">
+        <% unless @communication.conclusion.blank? -%>
+          <div id="conclusion"><%= beautify(@communication.conclusion) -%></div>
+        <% end -%>
+        <% unless @communication.footer.blank? -%>
+          <div id="footer"><%= beautify(@communication.footer) -%></div>
+        <% end -%>
+      </td></tr>
+    </table>
+  </body>
+</html>
+<% else %>
+<html style="background: #EEE">
+  <body style="background: #EEE">
+    <div id="page" style="width: 750px; margin: 8px auto;">
+      <% link_style = "text-align: center; margin: 8px auto; display: block; border: none; font-size: 11px; " -%>
+      <% unless @communication.unreadable_label.blank? -%>
+        <a style="<%= link_style -%>" href="<%= @message_url -%>"><%= @communication.unreadable_label -%></a>
+      <% end -%>
+      <a style="<%= link_style -%>" href="<%= @communication.target_url -%>"><%= image_tag(attachments[@communication.flyer.original_filename].url) -%></a>
+      <% unless @communication.unsubscribe_label.blank? -%>
+        <a style="<%= link_style -%>" href="<%= @unsubscribe_url -%>"><%= @communication.unsubscribe_label -%></a>
+      <% end -%>
+    </div>
+  </body>
+</html>
+<% end -%>

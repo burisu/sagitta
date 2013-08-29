@@ -20,10 +20,10 @@
         =f.input :target_url
       -elsif @communication.document?
         =f.input :document, :as => :file
+        =f.input :target_url
 
     -t.tab(:parameters, "Paramètres") do
-      -if current_user.administrator?
-        =f.association :client
+      =f.association :client, :as => (current_user.administrator? ? :select : :hidden)
       =f.input :planned_on
       =f.input :sender_email
       =f.input :sender_label

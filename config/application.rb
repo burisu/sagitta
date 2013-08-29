@@ -58,5 +58,13 @@ module Sagitta
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+
+    # Changes the default charset in mails
+    config.action_mailer.default  = {
+      :mime_version => "1.0",
+      :charset      => "ISO-8859-15",
+      :content_type => "text/plain",
+      :parts_order  => [ "text/plain", "text/enriched", "text/html" ]
+    }
   end
 end

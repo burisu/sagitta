@@ -22,7 +22,7 @@ class Piece < ActiveRecord::Base
     :url => "/:class/:id.pdf"
   }
   validates_attachment_presence :document
-  validates_attachment_content_type :document, :content_type => [ 'application/pdf', 'application/x-pdf' ]
+  # validates_attachment_content_type :document, :content_type => [ 'application/pdf', 'application/x-pdf' ]
   # validates_attachment_size :document, :less_than => 20.megabytes
   validates_uniqueness_of :name, :scope => :communication_id
 

@@ -8,5 +8,5 @@
     =csrf_meta_tags
   %body
     #page
-      =link_to((@communication.target_url.blank? ? nil : @communication.target_url), :class => :main) do
+      =link_to((@communication.target_url.blank? ? nil : target_url(@sending.key)), :class => :main) do
         =image_tag(@communication.flyer.url(:web), :title => @communication.message)

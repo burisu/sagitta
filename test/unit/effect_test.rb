@@ -4,11 +4,12 @@
 #
 #  id               :integer          not null, primary key
 #  communication_id :integer          not null
-#  touchable_id     :integer
+#  sending_id       :integer
 #  nature           :string(255)      not null
 #  made_at          :datetime         not null
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
+#  shipment_id      :integer
 #
 
 require 'test_helper'

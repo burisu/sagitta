@@ -44,17 +44,22 @@
 
 class Communication < ActiveRecord::Base
   include Prawn::Measurements
-
-  @@natures = ["flyer", "newsletter", "document"]
+  # extend Enumerize
+  @@natures = %w(flyer newsletter document)
+  # enumerize :nature, :in => [:flyer, :newsletter, :document], :default => :document
   attr_accessible :client_id, :name, :planned_on, :sender_email, :sender_label, :reply_to_email, :test_email, :message, :flyer, :unreadable_label, :unsubscribe_label, :message_label, :subject, :target_url, :newsletter_id, :introduction, :conclusion, :title, :with_pdf, :document, :nature
   belongs_to :client, :class_name => "User", :counter_cache => true
   belongs_to :newsletter
   has_many :articles, :dependent => :delete_all, :order => :position
   has_many :effects, :dependent => :delete_all
+  for nature in Effect.nature.values
+    has_many "#{nature}_effects", :class_name => "Effect", :conditions => {:nature => nature}
+  end
   has_many :pieces, :dependent => :destroy
   has_many :alone_pieces, :class_name => "Piece", :conditions => "article_id IS NULL"
   has_many :touchables, :dependent => :delete_all, :order => "canal, coordinate"
   has_many :testables, :class_name => "Touchable", :dependent => :delete_all, :order => :email, :conditions => {:test => true}
+  has_many :sendings
   has_many :shipments, :order => "started_at DESC"
   has_many :active_shipments, :conditions => {:state => "sending"}, :class_name => "Shipment", :order => "started_at DESC"
   has_attached_file :flyer, {
@@ -68,11 +73,11 @@ class Communication < ActiveRecord::Base
   }
 
   validates_presence_of :nature
-  validates_presence_of :newsletter, :if => Proc.new{|c| c.newsletter? }
-  validates_attachment_presence :document, :if => Proc.new{|c| c.document? }
-  validates_attachment_content_type :document, :content_type => ["application/pdf", "application/x-pdf"], :if => Proc.new{|c| c.document? }
-  validates_attachment_presence :flyer, :if => Proc.new{|c| c.flyer? }
   validates_inclusion_of :nature, :in => @@natures
+  validates_presence_of :newsletter, :if => :newsletter?
+  validates_attachment_presence :document, :if => Proc.new{ |c| c.document? }
+  # validates_attachment_content_type :document, :content_type => ["application/pdf", "application/x-pdf"], :if => :document?
+  validates_attachment_presence :flyer, :if => Proc.new{ |c| c.flyer? }
 
   delegate :global_style, :print_style, :header, :footer, :to => :newsletter
 
@@ -87,17 +92,17 @@ class Communication < ActiveRecord::Base
     if self.newsletter? and self.newsletter
       self.ecofax_number   = self.newsletter.ecofax_number
       self.ecofax_password = self.newsletter.ecofax_password
-    else
+    elsif self.client
       self.ecofax_number   = self.client.ecofax_number
       self.ecofax_password = self.client.ecofax_password
     end
     if self.document?
       if self.document.queued_for_write[:original]
         input = self.document.queued_for_write[:original].path
-        output = Rails.root.join("tmp", "doc-out-"+rand(10000000).to_s(36)+".jpg")
+        output = Rails.root.join("tmp", "doc-out-" + rand(10000000).to_s(36) + ".jpg")
         system("convert -antialias -density 200x200 \"#{input}[0]\" #{output}")
-        File.open(output, "rb") do |f|
-          self.flyer = f
+        File.open(output, "rb") do |f| 
+          self.flyer.assign(f)
         end
       end
     end
@@ -131,7 +136,11 @@ class Communication < ActiveRecord::Base
     end
     shipment.total = shipment.sendings.count
     shipment.save
-    shipment.delay.distribute
+    if Rails.env.development?
+      shipment.distribute
+    else
+      shipment.delay.distribute
+    end
     return shipment
   end
 
@@ -412,7 +421,17 @@ class Communication < ActiveRecord::Base
         data = f.read
       end
     else
-      data = WickedPdf.new.pdf_from_string(self.to_html(:print, options))
+      pdf_options = {}
+      if self.newsletter
+        margins = (self.newsletter.page_margins || '1').split(/\s+/).map(&:to_f)
+        margins[0] ||= 1
+        margins[1] ||= margins[0]
+        margins[2] ||= margins[0]
+        margins[3] ||= margins[1]
+        pdf_options[:margin] = {:top => margins[0], :right => margins[1], :bottom => margins[2], :left => margins[3]}
+      end
+      # raise pdf_options.inspect
+      data = WickedPdf.new.pdf_from_string(self.to_html(:print, options), pdf_options)
     end
     return data
   end
@@ -462,17 +481,16 @@ class Communication < ActiveRecord::Base
     return c
   end
 
-
   def newsletter?
-    (self.nature == "newsletter" ? true : false)
+    (self.nature.to_s == "newsletter" ? true : false)
   end
 
   def flyer?
-    (self.nature == "flyer" ? true : false)
+    (self.nature.to_s == "flyer" ? true : false)
   end
 
   def document?
-    (self.nature == "document" ? true : false)
+    (self.nature.to_s == "document" ? true : false)
   end
 
 end

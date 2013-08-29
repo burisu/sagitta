@@ -1,4 +1,4 @@
-%h1="Pièce jointe pour #{@piece.communication.newsletter.name}"
+-page_title "Pièce jointe pour #{@piece.communication.name}"
 =simple_fields_for @piece do |f|
   =f.input :name, :input_html => {:class => "large"}
   =f.input :document

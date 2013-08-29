@@ -33,8 +33,7 @@ class CommunicationsController < AdminController
   end
   
   def new
-    @communication = Communication.new(:client_id => params[:client_id])
-    @communication.nature = params[:nature]
+    @communication = Communication.new(:client_id => params[:client_id], :nature => params[:nature])
     if @communication.newsletter?
       @communication.newsletter = Newsletter.find_by_id(params[:newsletter_id])
       @communication.client ||= @communication.newsletter.client

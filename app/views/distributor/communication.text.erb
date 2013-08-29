@@ -1,4 +1,4 @@
-<% if @communication.newsletter -%>
+<% if @communication.newsletter? -%>
 <%= textify(@communication.full_title, :mode => :h1) -%>
 
 <%= textify(@communication.introduction) %>

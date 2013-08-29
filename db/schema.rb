@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121120144737) do
+ActiveRecord::Schema.define(:version => 20130214140402) do
 
   create_table "articles", :force => true do |t|
     t.integer  "communication_id",  :null => false
@@ -101,15 +101,17 @@ ActiveRecord::Schema.define(:version => 20121120144737) do
 
   create_table "effects", :force => true do |t|
     t.integer  "communication_id", :null => false
-    t.integer  "touchable_id"
+    t.integer  "sending_id"
     t.string   "nature",           :null => false
     t.datetime "made_at",          :null => false
     t.datetime "created_at",       :null => false
     t.datetime "updated_at",       :null => false
+    t.integer  "shipment_id"
   end
 
   add_index "effects", ["communication_id"], :name => "index_effects_on_communication_id"
-  add_index "effects", ["touchable_id"], :name => "index_effects_on_touchable_id"
+  add_index "effects", ["sending_id"], :name => "index_effects_on_touchable_id"
+  add_index "effects", ["shipment_id"], :name => "index_effects_on_shipment_id"
 
   create_table "newsletter_rubrics", :force => true do |t|
     t.integer "newsletter_id",       :null => false
@@ -136,6 +138,7 @@ ActiveRecord::Schema.define(:version => 20121120144737) do
     t.text     "global_style"
     t.text     "print_style"
     t.boolean  "with_pdf",            :default => false, :null => false
+    t.string   "page_margins"
   end
 
   add_index "newsletters", ["client_id"], :name => "index_newsletters_on_client_id"
@@ -155,16 +158,20 @@ ActiveRecord::Schema.define(:version => 20121120144737) do
   add_index "pieces", ["communication_id"], :name => "index_pieces_on_communication_id"
 
   create_table "sendings", :force => true do |t|
-    t.integer  "shipment_id",  :null => false
+    t.integer  "shipment_id",      :null => false
     t.integer  "touchable_id"
     t.string   "canal"
     t.text     "coordinate"
     t.datetime "sent_at"
     t.text     "report"
-    t.datetime "created_at",   :null => false
-    t.datetime "updated_at",   :null => false
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
+    t.string   "key"
+    t.integer  "communication_id"
   end
 
+  add_index "sendings", ["communication_id"], :name => "index_sendings_on_communication_id"
+  add_index "sendings", ["key"], :name => "index_sendings_on_key"
   add_index "sendings", ["shipment_id"], :name => "index_sendings_on_shipment_id"
   add_index "sendings", ["touchable_id"], :name => "index_sendings_on_touchable_id"
 
