@@ -131,7 +131,8 @@ class Communication < ActiveRecord::Base
       filter[:canal] = options[:only]
     end
     shipment = self.shipments.create!(:description => description)
-    self.touchables.where("search_key NOT IN (SELECT search_key FROM untouchables)").where(filter).find_each do |touchable|
+    # self.touchables.where("search_key NOT IN (SELECT search_key FROM untouchables)").where(filter).find_each do |touchable|
+    self.touchables.where("search_key NOT IN (SELECT search_key FROM untouchables WHERE client_id = ?)", self.client_id).where(filter).find_each do |touchable|
       shipment.sendings.create!(:touchable => touchable)
     end
     shipment.total = shipment.sendings.count
