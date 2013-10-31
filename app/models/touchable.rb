@@ -44,7 +44,7 @@ class Touchable < ActiveRecord::Base
   end
 
   def stroke!
-    self.communication.client.untouchables.create!(:email => self.email)
+    self.communication.client.untouchables.create!(canal: self.canal, coordinate: self.coordinate, unsubscribed_at: Time.now)
   end
 
   # Defines canal testors
