@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.17'
+gem 'rails', '3.2.18'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -9,7 +9,7 @@ gem 'pg'
 gem 'haml'
 gem 'devise'
 gem 'paperclip', '~> 3.3.1'
-gem 'active-list'
+gem 'active-list', '~> 4.2.4'
 gem 'formize', '~> 1.1'
 gem 'simple_form'
 gem 'i18n-complements'

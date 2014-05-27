@@ -1,0 +1,5 @@
+- page_title "Intouchable"
+= simple_fields_for @untouchable do |f|
+  = f.association :client
+  = f.input :canal, collection: {"E-mail" => :email, "Fax" => :fax}
+  = f.input :coordinate, as: :string

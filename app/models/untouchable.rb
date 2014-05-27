@@ -15,12 +15,12 @@
 
 # People who don't receive e-mails
 class Untouchable < ActiveRecord::Base
-  attr_accessible :canal, :coordinate
+  attr_accessible :canal, :coordinate, :client_id
   belongs_to :client, :class_name => "User"
   # before_update :prevent_bad_update
   # before_destroy :prevent_bad_update
 
-  default_scope order(:canal, :coordinate)
+  default_scope -> { order(:canal, :coordinate) }
 
   # def prevent_bad_update
   #   old = self.class.find(self.id)
@@ -28,6 +28,7 @@ class Untouchable < ActiveRecord::Base
   # end
 
   before_validation do
+    self.unsubscribed_at ||= Time.now
     self.search_key = self.canal + "/"
     if self.canal == "mail"
       self.search_key += self.coordinate.split(";").collect{|x| x.strip.parameterize}.join(";")

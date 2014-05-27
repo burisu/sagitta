@@ -19,7 +19,7 @@ class ArticlesController < AdminController
     respond_to do |format|
       if @article.save
         format.html { redirect_to (params[:redirect] || communication_url(@article.communication)) }
-        format.json { render json => @article, :status => :created, :location => @article }
+        format.json { render :json => @article, :status => :created, :location => @article }
       else
         format.html { render_restfully_form(:multipart => true) }
         format.json { render :json => @article.errors, :status => :unprocessable_entity }
